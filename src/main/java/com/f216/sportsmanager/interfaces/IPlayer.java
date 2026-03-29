@@ -1,4 +1,4 @@
-package com.sportsmanager.core.model;
+package com.f216.sportsmanager.interfaces;
 import java.util.Map;
 
 public interface IPlayer {
