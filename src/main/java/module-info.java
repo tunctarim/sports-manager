@@ -9,4 +9,6 @@ module com.f216.sportsmanager {
     opens com.f216.sportsmanager.models to javafx.fxml;
     exports com.f216.sportsmanager.interfaces;
     opens com.f216.sportsmanager.interfaces to javafx.fxml;
+    exports com.f216.sportsmanager.enums;
+    opens com.f216.sportsmanager.enums to javafx.fxml;
 }
