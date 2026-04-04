@@ -1,4 +1,4 @@
-package com.f216.sportsmanager;
+package com.f216.sportsmanager.ui;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
