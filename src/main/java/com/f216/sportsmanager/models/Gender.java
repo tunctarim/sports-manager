@@ -1,4 +1,4 @@
-package com.f216.sportsmanager;
+package com.f216.sportsmanager.models;
 
 public enum Gender {
     MALE("Male"),

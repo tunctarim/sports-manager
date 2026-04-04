@@ -1,8 +1,6 @@
 package com.f216.sportsmanager.models;
 
-import com.f216.sportsmanager.BasePlayer;
-import com.f216.sportsmanager.Gender;
-import com.f216.sportsmanager.PlayerPosition;
+import com.f216.sportsmanager.interfaces.PlayerPosition;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;

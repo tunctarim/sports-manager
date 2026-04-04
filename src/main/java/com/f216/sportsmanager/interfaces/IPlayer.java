@@ -1,6 +1,5 @@
 package com.f216.sportsmanager.interfaces;
-import com.f216.sportsmanager.Gender;
-import com.f216.sportsmanager.PlayerPosition;
+import com.f216.sportsmanager.models.Gender;
 
 import java.util.Map;
 
