@@ -14,4 +14,8 @@ public interface ITeam {
 
     int getPoints();
     void updateRecord(int pf, int pa, int pts);
+
+    void addPlayer(IPlayer player);
+    void removePlayer(IPlayer player);
+
 }
