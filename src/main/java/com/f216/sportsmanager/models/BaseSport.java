@@ -2,6 +2,8 @@ package com.f216.sportsmanager.models;
 
 import com.f216.sportsmanager.interfaces.ISport;
 import com.f216.sportsmanager.enums.EndCondition; // Assuming you created this Enum
+import com.f216.sportsmanager.interfaces.PlayerPosition;
+
 import java.util.List;
 
 public abstract class BaseSport implements ISport {
@@ -14,8 +16,10 @@ public abstract class BaseSport implements ISport {
     private final int segmentLimit;
     private final EndCondition endCondition;
     private final int tickInterval;
+    private final List<PlayerPosition> requiredPositions;
 
-    public BaseSport(String name, int ppW, int ppD, int roster, int segments, int limit, EndCondition condition, int tickInterval) {
+
+    public BaseSport(String name, int ppW, int ppD, int roster, int segments, int limit, EndCondition condition, int tickInterval, List<PlayerPosition> positions) {
 
         if (name == null || name.isEmpty()) throw new IllegalArgumentException("Sport name cannot be empty.");
         if (roster <= 0) throw new IllegalArgumentException("Roster size must be positive.");
@@ -31,6 +35,7 @@ public abstract class BaseSport implements ISport {
         this.segmentLimit = limit;
         this.endCondition = condition;
         this.tickInterval = tickInterval;
+        this.requiredPositions = positions;
     }
 
     @Override
@@ -80,4 +85,9 @@ public abstract class BaseSport implements ISport {
 
     @Override
     public abstract List<String> getRequiredStats();
+
+    @Override
+    public List<PlayerPosition> getRequiredPositions() {
+        return requiredPositions;
+    }
 }

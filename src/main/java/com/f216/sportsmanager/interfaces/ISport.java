@@ -3,6 +3,7 @@ package com.f216.sportsmanager.interfaces;
 import com.f216.sportsmanager.enums.EndCondition;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ISport{
 
@@ -30,4 +31,7 @@ public interface ISport{
 
     EndCondition getEndCondition();
     // Returns either TIME_LIMIT or SCORE_LIMIT to end a game(time limit for football, basketball, score limit for volleyball.)
+
+    List<PlayerPosition> getRequiredPositions();
+    // Returns required positions and the quantity of them for the sport.
 }

@@ -5,6 +5,7 @@ import com.f216.sportsmanager.enums.Tactic;
 import com.f216.sportsmanager.interfaces.IPlayer;
 import com.f216.sportsmanager.interfaces.ISport;
 import com.f216.sportsmanager.interfaces.ITeam;
+import com.f216.sportsmanager.interfaces.PlayerPosition;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
@@ -16,6 +17,18 @@ import static org.junit.jupiter.api.Assertions.*;
 class LeagueTest {
 
     private static final ISport FOOTBALL_SPORT = new ISport() {
+        private enum MockPosition implements PlayerPosition {
+            GK("GK"),
+            FLD("FLD");
+
+            private final String code;
+
+            MockPosition(String code) {
+                this.code = code;
+            }
+            @Override public String getCode() { return code; }
+        }
+
         @Override
         public String getSportName() {
             return "Football";
@@ -65,10 +78,26 @@ class LeagueTest {
         public EndCondition getEndCondition() {
             return EndCondition.TIME_LIMIT;
         }
+
+        @Override
+        public List<PlayerPosition> getRequiredPositions() {
+            return List.of(MockPosition.GK, MockPosition.FLD);
+        }
     };
 
     private static ISport sportStub(String name) {
         return new ISport() {
+            private enum MockPosition implements PlayerPosition {
+                GK("GK"),
+                FLD("FLD");
+
+                private final String code;
+
+                MockPosition(String code) {
+                    this.code = code;
+                }
+                @Override public String getCode() { return code; }
+            }
             @Override
             public String getSportName() {
                 return name;
@@ -117,6 +146,10 @@ class LeagueTest {
             @Override
             public EndCondition getEndCondition() {
                 return EndCondition.SCORE_LIMIT;
+            }
+            @Override
+            public List<PlayerPosition> getRequiredPositions() {
+                return List.of(MockPosition.GK, MockPosition.FLD);
             }
         };
     }

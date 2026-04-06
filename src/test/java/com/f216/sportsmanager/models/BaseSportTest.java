@@ -1,6 +1,7 @@
 package com.f216.sportsmanager.models;
 
 import com.f216.sportsmanager.enums.EndCondition;
+import com.f216.sportsmanager.interfaces.PlayerPosition;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.util.List;
@@ -10,13 +11,30 @@ import static org.junit.jupiter.api.Assertions.*;
 public class BaseSportTest {
 
     private static class MockSport extends BaseSport {
-        public MockSport(String name, int ppW, int ppD, int roster, int segments, int limit, EndCondition condition, int tick) {
-            super(name, ppW, ppD, roster, segments, limit, condition, tick);
+        private enum MockPosition implements PlayerPosition {
+            GK("GK"),
+            FLD("FLD");
+
+            private final String code;
+
+            MockPosition(String code) {
+                this.code = code;
+            }
+            @Override public String getCode() { return code; }
+        }
+
+        public MockSport(String name, int ppW, int ppD, int roster, int segments, int limit, EndCondition condition, int tick, List<PlayerPosition> required) {
+            super(name, ppW, ppD, roster, segments, limit, condition, tick, List.of(MockPosition.GK, MockPosition.FLD));
         }
 
         @Override
         public List<String> getRequiredStats() {
             return List.of("Speed", "Stamina");
+        }
+
+        @Override
+        public List<PlayerPosition> getRequiredPositions() {
+            return List.of(MockPosition.GK, MockPosition.FLD);
         }
     }
 

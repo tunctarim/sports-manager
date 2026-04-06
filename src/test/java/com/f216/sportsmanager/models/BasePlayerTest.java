@@ -11,30 +11,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class BasePlayerTest {
     enum TestPosition implements PlayerPosition {
-        FORWARD("FW", "Forward", false), GOALKEEPER("GK", "Goalkeeper", true), MIDFIELDER("MF", "Midfielder", false);
+        FORWARD("FW"), GOALKEEPER("GK"), MIDFIELDER("MF");
         private final String code;
-        private final String displayName;
-        private final boolean goalkeeperRole;
-
-        TestPosition(String code, String displayName, boolean goalkeeperRole) {
+        TestPosition(String code) {
             this.code = code;
-            this.displayName = displayName;
-            this.goalkeeperRole = goalkeeperRole;
         }
 
         @Override
         public String  getCode(){
             return code;
-        }
-
-        @Override
-        public String  getDisplayName(){
-            return displayName;
-        }
-
-        @Override
-        public boolean isGoalkeeperRole(){
-            return goalkeeperRole;
         }
     }
 
