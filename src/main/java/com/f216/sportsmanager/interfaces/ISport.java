@@ -1,5 +1,7 @@
 package com.f216.sportsmanager.interfaces;
 
+import com.f216.sportsmanager.enums.EndCondition;
+
 import java.util.List;
 
 public interface ISport{
@@ -10,6 +12,8 @@ public interface ISport{
 
     int getPointsPerWin();
 
+    int getPointsPerDraw();
+
     int getRosterSize();
 
     int getSegmentLimit();
@@ -18,9 +22,12 @@ public interface ISport{
     int getTickInterval();
     // Returns how many milliseconds a “tick” (1 minute or 1 rally) lasts.
 
+    int getTotalMatchLength();
+    // Returns Segment Count * Segment Limit, which is the total match length.
+
     List<String> getRequiredStats();
     // Returns a list of strings so the Factory knows which random stats to generate for this specific sport.
 
-    String getEndCondition();
+    EndCondition getEndCondition();
     // Returns either TIME_LIMIT or SCORE_LIMIT to end a game(time limit for football, basketball, score limit for volleyball.)
 }

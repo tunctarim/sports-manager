@@ -1,5 +1,5 @@
 package com.f216.sportsmanager.interfaces;
-import com.f216.sportsmanager.models.Gender;
+import com.f216.sportsmanager.enums.Gender;
 
 import java.util.Map;
 
