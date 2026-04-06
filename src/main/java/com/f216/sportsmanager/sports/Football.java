@@ -7,10 +7,6 @@ import java.util.List;
 
 public class Football extends BaseSport {
 
-    public Football(String name, int ppW, int ppD, int roster, int segments, int limit, EndCondition condition, int tickInterval, List<PlayerPosition> requiredPositions) {
-        super(name, ppW, ppD, roster, segments, limit, condition, tickInterval, requiredPositions);
-    }
-
     public enum FootballPosition implements PlayerPosition {
         GK("GK"),
         DEF("DEF"),
@@ -23,11 +19,23 @@ public class Football extends BaseSport {
             this.code = code;
         }
 
-        @Override public String getCode() { return code; }
+        @Override
+        public String getCode() {
+            return code;
+        }
     }
 
-    public List<PlayerPosition> getRequiredPositions() {
+    public Football() {
+        super("Football", 3, 1, 22, 2, 45, EndCondition.TIME_LIMIT, 1000, getRequiredPositionsStatic());
+    }
+
+    private static List<PlayerPosition> getRequiredPositionsStatic() {
         return List.of(FootballPosition.GK, FootballPosition.DEF, FootballPosition.MID, FootballPosition.FWD);
+    }
+
+    @Override
+    public List<PlayerPosition> getRequiredPositions() {
+        return getRequiredPositionsStatic();
     }
 
     @Override

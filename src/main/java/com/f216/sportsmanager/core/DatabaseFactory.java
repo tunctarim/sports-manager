@@ -29,7 +29,7 @@ public class DatabaseFactory {
      */
     public static League generateLeague(String name, ISport sport) {
         if (sport == null) {
-            throw new IllegalArgumentException("Sport type must not be null[cite: 317].");
+            throw new IllegalArgumentException("Sport type must not be null.");
         }
         return new League(name, sport);
     }
@@ -52,7 +52,7 @@ public class DatabaseFactory {
      */
     public static ITeam createTeam(String teamName, ISport sport, Tactic tactic) {
         if (teamName == null || teamName.isBlank()) {
-            throw new IllegalArgumentException("Team name cannot be empty[cite: 317].");
+            throw new IllegalArgumentException("Team name cannot be empty.");
         }
         return new Team(teamName, generateRoster(sport), tactic);
     }
@@ -90,7 +90,6 @@ public class DatabaseFactory {
         List<String> neededStats = sport.getRequiredStats();
 
         for (String statName : neededStats) {
-            // Defensive coding: ensuring stats are in a realistic "border" range [cite: 227, 549]
             int randomValue = RANDOM.nextInt(40, 96);
             player.setStat(statName, randomValue);
         }
@@ -101,7 +100,6 @@ public class DatabaseFactory {
      */
     public static Map<String, String> loadAssetPointers() {
         Map<String, String> assetMap = new HashMap<>();
-        // Proactive check: "Assumptions are our enemy" [cite: 655]
         File assetFolder = new File("src/main/resources/assets");
 
         if (assetFolder.exists() && assetFolder.isDirectory()) {
@@ -117,13 +115,10 @@ public class DatabaseFactory {
         return assetMap;
     }
 
-    // --- Persistence Logic (The "Standard") ---
-
     public static void save(League league) {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(SAVE_PATH))) {
             oos.writeObject(league);
         } catch (IOException e) {
-            // "These messages carry a lot of information. Use them." [cite: 34, 42]
             e.printStackTrace();
         }
     }
