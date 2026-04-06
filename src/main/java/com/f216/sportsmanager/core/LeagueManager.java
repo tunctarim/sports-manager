@@ -1,4 +1,4 @@
-package com.f216.sportsmanager.models;
+package com.f216.sportsmanager.core;
 
 import com.f216.sportsmanager.enums.Tactic;
 import com.f216.sportsmanager.interfaces.IPlayer;
