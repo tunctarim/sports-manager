@@ -13,4 +13,6 @@ module com.f216.sportsmanager {
     opens com.f216.sportsmanager.enums to javafx.fxml;
     exports com.f216.sportsmanager.ui;
     opens com.f216.sportsmanager.ui to javafx.fxml;
+    exports com.f216.sportsmanager.core;
+    opens com.f216.sportsmanager.core to javafx.fxml;
 }
