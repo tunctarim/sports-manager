@@ -287,7 +287,7 @@ class BasePlayerTest {
             assertTrue(player.isInjured());
         }
 
-        @ParameterizedTest(name = "Giriş: {0} → Beklenen health: {1}")
+        @ParameterizedTest(name = "Entrance: {0} → Expected health: {1}")
         @CsvSource({
                 "150, 100",
                 "100, 100",
