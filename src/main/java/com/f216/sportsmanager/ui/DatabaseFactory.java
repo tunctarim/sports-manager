@@ -4,7 +4,8 @@ import com.f216.sportsmanager.interfaces.IPlayer;
 import com.f216.sportsmanager.interfaces.ISport;
 import com.f216.sportsmanager.interfaces.ITeam;
 import com.f216.sportsmanager.models.BasePlayer;
-import com.f216.sportsmanager.models.Gender;
+import com.f216.sportsmanager.enums.Gender;
+import com.f216.sportsmanager.models.BaseTeam;
 import com.f216.sportsmanager.models.League;
 
 import java.util.ArrayList;
@@ -49,12 +50,24 @@ public class DatabaseFactory {
         return league;
     }
 
+    public League createLeagueInstance(String leagueName, ISport sport) {
+        if (sport == null) {
+            throw new IllegalArgumentException("Sport cannot be null.");
+        }
+        return new League(leagueName, sport);
+    }
+
     public ITeam createTeam(ISport sport) {
         if (sport == null)
             throw new IllegalArgumentException("Sport cannot be null.");
+
         String teamName = generateTeamName();
         String logoPath = pickRandomLogo();
-        return new BaseTeam(teamName, logoPath);
+
+        ITeam baseTeam = new BaseTeam(teamName, new ArrayList<>(), null) {
+        };
+
+        return baseTeam;
     }
 
     public List<IPlayer> generateRoster(ISport sport) {
