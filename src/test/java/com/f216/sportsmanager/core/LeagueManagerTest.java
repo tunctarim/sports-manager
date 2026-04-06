@@ -1,10 +1,13 @@
-package com.f216.sportsmanager.models;
-import com.f216.sportsmanager.core.LeagueManager;
+package com.f216.sportsmanager.core;
 import com.f216.sportsmanager.enums.EndCondition;
 import com.f216.sportsmanager.enums.Tactic;
 import com.f216.sportsmanager.interfaces.IPlayer;
 import com.f216.sportsmanager.interfaces.ISport;
 import com.f216.sportsmanager.interfaces.ITeam;
+import com.f216.sportsmanager.models.Fixture;
+import com.f216.sportsmanager.models.League;
+import com.f216.sportsmanager.models.MatchResult;
+import com.f216.sportsmanager.models.StandingRecord;
 import org.junit.jupiter.api.*;
 
 import java.util.List;

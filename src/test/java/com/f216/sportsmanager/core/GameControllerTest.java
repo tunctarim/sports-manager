@@ -1,11 +1,11 @@
-package com.f216.sportsmanager.models;
+package com.f216.sportsmanager.core;
 
 import static org.mockito.Mockito.*;
 
-import com.f216.sportsmanager.core.LeagueManager;
 import com.f216.sportsmanager.interfaces.ISport;
+import com.f216.sportsmanager.models.DashboardData;
+import com.f216.sportsmanager.models.League;
 import com.f216.sportsmanager.ui.DatabaseFactory;
-import com.f216.sportsmanager.core.GameController;
 import com.f216.sportsmanager.enums.Tactic;
 import com.f216.sportsmanager.interfaces.ITeam;
 import org.junit.jupiter.api.BeforeEach;
