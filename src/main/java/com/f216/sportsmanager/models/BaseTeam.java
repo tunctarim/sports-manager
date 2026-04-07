@@ -4,9 +4,10 @@ import com.f216.sportsmanager.enums.Tactic;
 import com.f216.sportsmanager.interfaces.IPlayer;
 import com.f216.sportsmanager.interfaces.ITeam;
 
+import java.io.Serializable;
 import java.util.*;
 
-public abstract class BaseTeam implements ITeam {
+public abstract class BaseTeam implements ITeam, Serializable {
 
 
     private final String teamName;

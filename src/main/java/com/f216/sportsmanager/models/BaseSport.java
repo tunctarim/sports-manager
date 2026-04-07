@@ -4,9 +4,10 @@ import com.f216.sportsmanager.interfaces.ISport;
 import com.f216.sportsmanager.enums.EndCondition; // Assuming you created this Enum
 import com.f216.sportsmanager.interfaces.PlayerPosition;
 
+import java.io.Serializable;
 import java.util.List;
 
-public abstract class BaseSport implements ISport {
+public abstract class BaseSport implements ISport, Serializable {
 
     private final String sportName;
     private final int pointsPerWin;

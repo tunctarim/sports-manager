@@ -4,12 +4,13 @@ import com.f216.sportsmanager.enums.Gender;
 import com.f216.sportsmanager.interfaces.PlayerPosition;
 import com.f216.sportsmanager.interfaces.IPlayer;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public abstract class BasePlayer implements IPlayer {
+public abstract class BasePlayer implements IPlayer, Serializable {
 
     private final int MAX_STAT   = 100;
     private final int MIN_STAT   = 1;

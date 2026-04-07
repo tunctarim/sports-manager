@@ -3,12 +3,13 @@ package com.f216.sportsmanager.models;
 import com.f216.sportsmanager.interfaces.ISport;
 import com.f216.sportsmanager.interfaces.ITeam;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class League {
+public class League implements Serializable {
 
     private final String leagueName;
     private final ISport sportType;
