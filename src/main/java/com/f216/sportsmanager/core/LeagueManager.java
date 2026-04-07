@@ -37,7 +37,7 @@ public class LeagueManager {
         this.matchEngine   = matchEngine;
         this.schedule      = new ArrayList<>();
         this.playedResults = new ArrayList<>();
-        this.currentWeek   = 0;
+        this.currentWeek   = 1; 
         this.seasonEnded   = false;
     }
     public void setLeagueData(League league) {
