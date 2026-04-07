@@ -20,7 +20,7 @@ public class GameController {
 
     public void initNewGame(ISport sport) {
         this.currentSport = sport;
-        League myLeague = databaseFactory.generateLeague(sport);
+        League myLeague = (League) databaseFactory.generateLeague(sport);
 
         leagueManager.setLeagueData(myLeague);
         leagueManager.generateSchedule();
