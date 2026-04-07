@@ -9,6 +9,7 @@ import com.f216.sportsmanager.models.League;
 import com.f216.sportsmanager.models.MatchResult;
 import com.f216.sportsmanager.models.StandingRecord;
 import org.junit.jupiter.api.*;
+import com.f216.sportsmanager.interfaces.PlayerPosition;
 
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ class LeagueManagerTest {
         @Override public int    getTotalMatchLength() { return 90; }
         @Override public List<String> getRequiredStats() { return List.of("pace", "shooting"); }
         @Override public EndCondition getEndCondition()  { return EndCondition.TIME_LIMIT; }
+        @Override public List<PlayerPosition> getRequiredPositions() { return List.of(); }
     };
 
     static class StubTeam implements ITeam {

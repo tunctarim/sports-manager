@@ -3,9 +3,9 @@ package com.f216.sportsmanager.core;
 import com.f216.sportsmanager.enums.Tactic;
 import com.f216.sportsmanager.interfaces.ISport;
 import com.f216.sportsmanager.interfaces.ITeam;
-import com.f216.sportsmanager.models.DashboardData;
 import com.f216.sportsmanager.models.League;
 import com.f216.sportsmanager.ui.DatabaseFactory;
+import java.util.Map;
 
 public class GameController {
     private final LeagueManager leagueManager;
@@ -38,7 +38,7 @@ public class GameController {
         System.out.println("Loading...");
     }
 
-    public DashboardData getDashboardData() {
+    public Map<String, Object> getDashboardData() {
         return leagueManager.getDashboardData();
     }
 
