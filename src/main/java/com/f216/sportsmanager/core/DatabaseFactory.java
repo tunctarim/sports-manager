@@ -65,21 +65,23 @@ public class DatabaseFactory {
         List<String> namesF = loadNames("F");
         List<String> namesM = loadNames("M");
         List<PlayerPosition> positions = sport.getRequiredPositions();
+        int positionIndex = 0;
 
-        for (PlayerPosition pos : positions) {
-            for (int i = 0; i < 2; i++) {
-                Gender randomGender = Gender.values()[RANDOM.nextInt(Gender.values().length)];
+        while (roster.size() < sport.getRosterSize()) {
+            PlayerPosition pos = positions.get(positionIndex % positions.size());
 
-                List<String> targetPool = (randomGender == Gender.FEMALE) ? namesF : namesM;
+            Gender randomGender = Gender.values()[RANDOM.nextInt(Gender.values().length)];
+            List<String> targetPool = (randomGender == Gender.FEMALE) ? namesF : namesM;
 
-                String name = targetPool.isEmpty()
-                        ? "Player_" + (roster.size() + 1)
-                        : targetPool.removeFirst();
+            String name = targetPool.isEmpty()
+                    ? "Player_" + (roster.size() + 1)
+                    : targetPool.removeFirst();
 
-                IPlayer p = new Player(name, 20, randomGender, pos);
-                randomizeStats(p, sport);
-                roster.add(p);
-            }
+            IPlayer p = new Player(name, 20, randomGender, pos);
+            randomizeStats(p, sport);
+            roster.add(p);
+
+            positionIndex++;
         }
         return roster;
     }
