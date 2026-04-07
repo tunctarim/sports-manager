@@ -72,9 +72,8 @@ public class LeagueManager {
 
         for (Fixture fixture : schedule.get(currentWeek)) {
             matchEngine.simulateMatch(
-                    fixture.getHome(),
-                    fixture.getAway(),
-                    league.getSportType(),
+                    fixture,
+                    league.getSportType(), getCurrentWeek(),
                     false
             );
 

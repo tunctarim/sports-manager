@@ -62,12 +62,12 @@ public abstract class BaseSport implements ISport, Serializable {
     @Override
     public int getSegmentCount() {
         return segmentCount;
-    }
+    } //Segment count should be a infinite (or very high) value for sports with ENDCONDITION = SCORE_LIMIT,
 
     @Override
     public int getSegmentLimit() {
         return segmentLimit;
-    }
+    } //Segment count should be set to a proper value for all sports
 
     @Override
     public EndCondition getEndCondition() {
@@ -82,7 +82,7 @@ public abstract class BaseSport implements ISport, Serializable {
     @Override
     public int getTotalMatchLength() {
         return segmentCount * segmentLimit;
-    }
+    } //For sports with ENDCONDITION=SCORE_LIMIT, this function should be Overriden to return the Score Limit value
 
     @Override
     public abstract List<String> getRequiredStats();
