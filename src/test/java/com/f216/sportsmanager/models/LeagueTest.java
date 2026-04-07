@@ -17,7 +17,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class LeagueTest {
 
     private static final ISport FOOTBALL_SPORT = new ISport() {
-        private enum MockPosition implements PlayerPosition {
+        enum MockPosition implements PlayerPosition {
             GK("GK"),
             FLD("FLD");
 
@@ -87,7 +87,7 @@ class LeagueTest {
 
     private static ISport sportStub(String name) {
         return new ISport() {
-            private enum MockPosition implements PlayerPosition {
+            enum MockPosition implements PlayerPosition {
                 GK("GK"),
                 FLD("FLD");
 

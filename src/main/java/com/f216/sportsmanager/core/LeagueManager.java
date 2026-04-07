@@ -69,11 +69,12 @@ public class LeagueManager {
             checkSeasonEnd();
             return;
         }
+        int weekNumber = currentWeek + 1;
 
         for (Fixture fixture : schedule.get(currentWeek)) {
             matchEngine.simulateMatch(
                     fixture,
-                    league.getSportType(), getCurrentWeek(),
+                    league.getSportType(), weekNumber,
                     false
             );
 
@@ -117,6 +118,8 @@ public class LeagueManager {
         if (seasonEnded) return true;
         if (schedule.isEmpty()) return false;
 
+        // currentWeek is post-incremented after each playMatchDay();
+        // season ends when all rounds have been played
         if (currentWeek >= schedule.size()) {
             seasonEnded = true;
             List<StandingRecord> standings = getStandingsTable();
