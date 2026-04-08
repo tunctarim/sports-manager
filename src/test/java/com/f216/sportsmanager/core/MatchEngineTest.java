@@ -22,7 +22,7 @@ class MatchEngineTest {
 
     private MatchEngine matchEngine;
     private AutoCloseable closeable;
-    private static final int SIMULATION_ITERATIONS = 100;
+    private static final int SIMULATION_ITERATIONS = 1000;
     private final Random random = new Random();
 
     @Mock private ITeam mockHomeTeam;
@@ -36,8 +36,8 @@ class MatchEngineTest {
 
         when(mockSport.getTickInterval()).thenReturn(1);
         when(mockSport.getSegmentCount()).thenReturn(2);
-        when(mockSport.getSegmentLimit()).thenReturn(10);
-        when(mockSport.getTotalMatchLength()).thenReturn(20);
+        when(mockSport.getSegmentLimit()).thenReturn(45);
+        when(mockSport.getTotalMatchLength()).thenReturn(90);
         when(mockSport.getEndCondition()).thenReturn(EndCondition.TIME_LIMIT);
 
         when(mockHomeTeam.getTactic()).thenReturn(Tactic.BALANCED);
@@ -122,7 +122,7 @@ class MatchEngineTest {
             List<MatchResult> attackResults = runMatches(SIMULATION_ITERATIONS, fixture, mockSport, 1);
             int totalAttackGoals = attackResults.stream().mapToInt(r -> r.getHomeScore() + r.getAwayScore()).sum();
 
-            // Scenario 2: Park the Bus (All Out Defense)
+            // Scenario 2: All Out Defense
             when(mockHomeTeam.getTactic()).thenReturn(Tactic.DEFEND);
             when(mockAwayTeam.getTactic()).thenReturn(Tactic.DEFEND);
             List<MatchResult> defendResults = runMatches(SIMULATION_ITERATIONS, fixture, mockSport, 1);

@@ -38,14 +38,15 @@ public class MatchEngine {
     private float HomeScoreProbability;
     private float AwayScoreProbability;
 
-    private final float homeAdvantageMultiplier = 1.1F;
+    private final float homeAdvantageMultiplier = 1.07F;
 
-    private final float DefensiveTacticGoalMultiplier = 0.8F;
-    private final float AttackTacticGoalMultiplier = 1.2F;
+    private final float DefensiveTacticGoalMultiplier = 0.75F;
+    private final float AttackTacticGoalMultiplier = 1.25F;
     private float FixedMultiplier; //This would not be implemented until M3
 
     private boolean isLive;
     private MatchResult matchResult;
+    private int attackMultiply;
 
     private final Random rand = new Random();
 
@@ -68,6 +69,8 @@ public class MatchEngine {
         HomeScoreProbability = 0;
         AwayScoreProbability = 0;
         FixedMultiplier = 1.0F; //This should be a sport specific value and would not be implemented until M3
+        matchResult = null;
+        attackMultiply = 0;
         this.week = week;
         this.isLive = isLive;
 
@@ -76,6 +79,10 @@ public class MatchEngine {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
+
+if (matchResult == null) {
+        matchResult = generateMatchReports(); // safety fallback
+    }
     }
 
     private void runGameLoop() throws InterruptedException {  //Currently does not support any UI inputs
@@ -106,7 +113,7 @@ public class MatchEngine {
 
         // 1. Define how likely ANY goal is to happen this tick (e.g., 5% chance)
         // Adjust this to control the "pace" of the game.
-        double baseScoringChance = 0.05;
+        double baseScoringChance = 0.05 + ((double) attackMultiply / 200);
 
         // 2. Normalize the scores so they are relative to each other
         // This prevents the code from "breaking" if scores are huge.
@@ -146,7 +153,7 @@ public class MatchEngine {
         AwayDefenseScore = 0;
 
         //This whole section is a placeholder until M3 where the Sport specific classes will implement a player and position based score calculation classes.
-
+        attackMultiply = 0;
         if (homeTeam.getTactic() == Tactic.DEFEND) {
             // Attack goes down (0.8), Defense goes up (1.2)
             HomeAttackScore = DefensiveTacticGoalMultiplier;
@@ -156,10 +163,12 @@ public class MatchEngine {
             // Attack goes up (1.2), Defense goes down (0.8)
             HomeAttackScore = AttackTacticGoalMultiplier;
             HomeDefenseScore = 1 - (AttackTacticGoalMultiplier - 1); // Fixed subtraction
+            attackMultiply += 2;
         }
         else if (homeTeam.getTactic() == Tactic.BALANCED) {
             HomeAttackScore = 1.0F;
             HomeDefenseScore = 1.0F;
+            attackMultiply += 1;
         }
         else {
             throw new IllegalStateException("Invalid tactic for home team: " + homeTeam.getTactic());
@@ -173,10 +182,12 @@ public class MatchEngine {
         else if (awayTeam.getTactic() == Tactic.ATTACK) {
             AwayAttackScore = AttackTacticGoalMultiplier;
             AwayDefenseScore = 1 - (AttackTacticGoalMultiplier - 1); // Fixed subtraction
+            attackMultiply += 2;
         }
         else if (awayTeam.getTactic() == Tactic.BALANCED) {
             AwayAttackScore = 1.0F;
             AwayDefenseScore = 1.0F;
+            attackMultiply += 1;
         }
         else {
             throw new IllegalStateException("Invalid tactic for away team: " + awayTeam.getTactic());
