@@ -81,7 +81,7 @@ class MatchEngineTest {
     class SimulateMatchNonLiveMode {
 
         @Test
-        @DisplayName("match completes successfully with randomized teams")
+        @DisplayName("match completes successfully on time limit with randomized teams")
         void matchCompletesWithTimeLimit() {
             // Fix: Generate lists first before stubbing
             List<IPlayer> randomHomeTeam = generateRandomTeam(11, 60, 85);
@@ -131,6 +131,40 @@ class MatchEngineTest {
             // Assert that tactics change the flow of the game without forcing a specific winner
             assertTrue(totalAttackGoals > totalDefendGoals,
                     "Two attacking teams should produce more total goals than two defending teams. Attack Goals: " + totalAttackGoals + ", Defend Goals: " + totalDefendGoals);
+        }
+    }
+    @Nested
+    @DisplayName("Realism and Score Distribution")
+    class ScoreDistribution {
+
+        @Test
+        @DisplayName("Most football matches should have around 1-5 goals for each team")
+        void realisticGoalDistribution() {
+            // Generate two evenly matched, average teams
+            List<IPlayer> homePlayers = generateRandomTeam(11, 70, 80);
+            List<IPlayer> awayPlayers = generateRandomTeam(11, 70, 80);
+
+            when(mockHomeTeam.getPlayers()).thenReturn(homePlayers);
+            when(mockAwayTeam.getPlayers()).thenReturn(awayPlayers);
+
+            // Ensure both are playing a balanced game
+            when(mockHomeTeam.getTactic()).thenReturn(Tactic.BALANCED);
+            when(mockAwayTeam.getTactic()).thenReturn(Tactic.BALANCED);
+
+            Fixture fixture = new Fixture(mockHomeTeam, mockAwayTeam);
+
+            // Run 1000 matches to get a good statistical average
+            List<MatchResult> results = runMatches(SIMULATION_ITERATIONS, fixture, mockSport, 1);
+
+            double avgHomeGoals = results.stream().mapToInt(MatchResult::getHomeScore).average().orElse(0.0);
+            double avgAwayGoals = results.stream().mapToInt(MatchResult::getAwayScore).average().orElse(0.0);
+
+            // Assert that the average goals per team fall within the 1.0 to 5.0 range
+            assertTrue(avgHomeGoals >= 1.0 && avgHomeGoals <= 5.0,
+                    "Average home goals should be realistic (between 1 and 5). Actual average: " + avgHomeGoals);
+
+            assertTrue(avgAwayGoals >= 1.0 && avgAwayGoals <= 5.0,
+                    "Average away goals should be realistic (between 1 and 5). Actual average: " + avgAwayGoals);
         }
     }
 
