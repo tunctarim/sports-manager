@@ -10,8 +10,8 @@ import java.util.*;
 
 public class DatabaseFactory {
     private static final String NAMES_FILE = "src/main/resources/names";
-    private static final String SAVE_PATH = "league_data.dat";
-    private static final Random RANDOM = new Random();
+    private static final String SAVE_DIR = "src/main/saves";
+    static final String SAVE_PATH = SAVE_DIR + "/league_data.dat";    private static final Random RANDOM = new Random();
     static class Player extends BasePlayer implements Serializable {
         Player(String name, int age, Gender gender, PlayerPosition position) {
             super(name, age, gender, position);
@@ -137,11 +137,23 @@ public class DatabaseFactory {
         return assetMap;
     }
 
-    public static void save(League league) {
+    public static boolean save(League league) {
+        if (league == null) {
+            System.err.println("Cannot save a null league.");
+            return false;
+        }
+
+        File directory = new File(SAVE_DIR);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(SAVE_PATH))) {
             oos.writeObject(league);
+            return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Failed to save league data: " + e.getMessage());
+            return false;
         }
     }
 

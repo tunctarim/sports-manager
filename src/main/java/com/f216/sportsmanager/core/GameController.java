@@ -6,6 +6,8 @@ import com.f216.sportsmanager.interfaces.ITeam;
 import com.f216.sportsmanager.models.League;
 import java.util.Map;
 
+import static com.f216.sportsmanager.core.DatabaseFactory.SAVE_PATH;
+
 public class GameController {
     private final LeagueManager leagueManager;
     private ISport currentSport;
@@ -28,10 +30,23 @@ public class GameController {
     }
 
     public void saveGame() {
-        System.out.println("Saving...");
+        League currentLeague = leagueManager.getLeague();
+        if (currentLeague != null) {
+            boolean success = DatabaseFactory.save(currentLeague);
+
+            if (success) {
+                System.out.println("Game saved successfully to " + SAVE_PATH);
+            } else {
+                System.out.println("Error: Could not save the game.");
+            }
+        } else {
+            System.out.println("Save failed: No active league data found.");
+        }
     }
 
     public void loadGame() {
+        League loadedLeague = DatabaseFactory.load();
+        leagueManager.setLeagueData(loadedLeague);
         System.out.println("Loading...");
     }
 
