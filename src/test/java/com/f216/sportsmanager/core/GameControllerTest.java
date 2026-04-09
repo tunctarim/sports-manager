@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.f216.sportsmanager.interfaces.ISport;
 import com.f216.sportsmanager.models.League;
-import com.f216.sportsmanager.ui.DatabaseFactory;
 import com.f216.sportsmanager.enums.Tactic;
 import com.f216.sportsmanager.interfaces.ITeam;
 import java.util.HashMap;
@@ -29,16 +28,16 @@ public class GameControllerTest {
         mockLeague = Mockito.mock(League.class);
         Mockito.when(mockSport.getSportName()).thenReturn("Football");
 
-        gameController = new GameController(mockLeagueManager, mockDatabaseFactory);
+        gameController = new GameController(mockLeagueManager);
     }
 
     @Test
     public void testInitNewGameFlow() {
-        Mockito.when(mockDatabaseFactory.generateLeague(mockSport)).thenReturn(mockLeague);
+        Mockito.when(mockDatabaseFactory.generateLeague("league",mockSport)).thenReturn(mockLeague);
 
         gameController.initNewGame(mockSport);
 
-        Mockito.verify(mockDatabaseFactory).generateLeague(mockSport);
+        Mockito.verify(mockDatabaseFactory).generateLeague("league",mockSport);
         Mockito.verify(mockLeagueManager).setLeagueData(mockLeague);
         Mockito.verify(mockLeagueManager).generateSchedule();
 
@@ -67,7 +66,7 @@ public class GameControllerTest {
     public void testGetDashboardData() {
         Map<String, Object> expectedData = new HashMap<>();
         expectedData.put("week", 1);
-        expectedData.put("teamName", "Test FC");
+        expectedData.put("getTeamName", "Test FC");
 
         Mockito.when(mockLeagueManager.getDashboardData()).thenReturn(expectedData);
 

@@ -6,6 +6,8 @@ import java.util.Map;
 
 public interface ITeam {
 
+    String getTeamName();
+
     List<IPlayer> getPlayers();
     Map<String, Integer> getTeamStats();
 

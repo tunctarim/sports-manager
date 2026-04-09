@@ -157,6 +157,11 @@ class LeagueTest {
     private static ITeam teamStub(String label) {
         return new ITeam() {
             @Override
+            public String getTeamName() {
+                return label;
+            }
+
+            @Override
             public List<IPlayer> getPlayers() {
                 return List.of();
             }
@@ -544,6 +549,11 @@ class LeagueTest {
 
         private ITeam teamWithStats(int points, int wins, int losses, int pf, int pa) {
             return new ITeam() {
+                @Override
+                public String getTeamName() {
+                    return "";
+                }
+
                 @Override
                 public List<IPlayer> getPlayers() {
                     return List.of();

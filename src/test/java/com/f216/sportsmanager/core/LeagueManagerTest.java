@@ -42,6 +42,11 @@ class LeagueManagerTest {
 
         StubTeam(String name) { this.name = name; }
 
+        @Override
+        public String getTeamName() {
+            return name;
+        }
+
         @Override public List<IPlayer>          getPlayers()  { return List.of(); }
         @Override public Map<String, Integer>   getTeamStats() {
             Map<String,Integer> m = new java.util.HashMap<>();

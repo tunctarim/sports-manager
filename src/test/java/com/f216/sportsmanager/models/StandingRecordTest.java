@@ -18,6 +18,11 @@ class StandingRecordTest {
     private static ITeam teamStub(int points, int wins, int losses, int pf, int pa) {
         return new ITeam() {
             @Override
+            public String getTeamName() {
+                return "";
+            }
+
+            @Override
             public List<IPlayer> getPlayers() {
                 return List.of();
             }
@@ -62,6 +67,11 @@ class StandingRecordTest {
     }
     private static ITeam nullStatsTeam() {
         return new ITeam() {
+            @Override
+            public String getTeamName() {
+                return "";
+            }
+
             @Override
             public List<IPlayer> getPlayers() {
                 return List.of();
@@ -213,6 +223,11 @@ class StandingRecordTest {
         @DisplayName("blank stat map – all numeric getters return 0")
         void testEmptyStatsMapDefaultsToZero() {
             ITeam blank = new ITeam() {
+                @Override
+                public String getTeamName() {
+                    return "";
+                }
+
                 @Override
                 public List<IPlayer> getPlayers() {
                     return List.of();

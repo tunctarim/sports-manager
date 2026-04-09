@@ -16,6 +16,11 @@ class FixtureGeneratorTest {
     private static ITeam teamStub(String label) {
         return new ITeam() {
             @Override
+            public String getTeamName() {
+                return label;
+            }
+
+            @Override
             public List<IPlayer> getPlayers() {
                 return List.of();
             }

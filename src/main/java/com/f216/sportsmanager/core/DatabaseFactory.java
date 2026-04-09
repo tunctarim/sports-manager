@@ -27,11 +27,31 @@ public class DatabaseFactory {
     /**
      * Creates a league for the specified sport type.
      */
-    public static League generateLeague(String name, ISport sport) {
-        if (sport == null) {
-            throw new IllegalArgumentException("Sport type must not be null.");
+    public static League generateLeague(String leagueName, ISport sport) {
+        if (sport == null) throw new IllegalArgumentException("Sport cannot be null");
+
+        League league = new League(leagueName, sport);
+        String teamFilePath = "src/main/resources/teamNames.txt";
+        int TEAM_LIMIT = 20;
+
+        try {
+            List<String> allNames = Files.readAllLines(Paths.get(teamFilePath));
+
+            Collections.shuffle(allNames);
+
+            for (int i = 0; i < allNames.size() && league.getTeamCount() < TEAM_LIMIT; i++) {
+                String name = allNames.get(i).trim();
+                if (name.isBlank()) continue;
+
+                ITeam team = createTeam(name, sport, Tactic.BALANCED);
+                league.addTeam(team);
+            }
+
+        } catch (IOException e) {
+            System.err.println("Error reading teamNames.txt: " + e.getMessage());
         }
-        return new League(name, sport);
+
+        return league;
     }
 
     protected static List<String> loadNames(String gender) {

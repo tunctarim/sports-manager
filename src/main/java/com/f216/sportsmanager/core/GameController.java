@@ -4,23 +4,20 @@ import com.f216.sportsmanager.enums.Tactic;
 import com.f216.sportsmanager.interfaces.ISport;
 import com.f216.sportsmanager.interfaces.ITeam;
 import com.f216.sportsmanager.models.League;
-import com.f216.sportsmanager.ui.DatabaseFactory;
 import java.util.Map;
 
 public class GameController {
     private final LeagueManager leagueManager;
-    private final DatabaseFactory databaseFactory;
     private ISport currentSport;
 
-    public GameController(LeagueManager leagueManager, DatabaseFactory databaseFactory) {
+    public GameController(LeagueManager leagueManager) {
         this.leagueManager = leagueManager;
-        this.databaseFactory = databaseFactory;
     }
-
 
     public void initNewGame(ISport sport) {
         this.currentSport = sport;
-        League myLeague = (League) databaseFactory.generateLeague(sport);
+
+        League myLeague = DatabaseFactory.generateLeague("league", sport);
 
         leagueManager.setLeagueData(myLeague);
         leagueManager.generateSchedule();
