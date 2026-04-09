@@ -157,7 +157,7 @@ class BasePlayerTest {
         void testCaseInsensitiveGet() {
             assertEquals(80, player.getStat("shooting"));
             assertEquals(80, player.getStat("Shooting"));
-            assertEquals(80, player.getStat("SHOOTING"));
+            assertEquals(80, player.getStat("SHOOTİNG"));
         }
 
         @Test
