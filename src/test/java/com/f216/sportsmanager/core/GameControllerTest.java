@@ -53,7 +53,7 @@ public class GameControllerTest {
     @Test
     public void testChangeTeamTactic() {
         ITeam mockTeam = Mockito.mock(ITeam.class);
-        Tactic newTactic = Tactic.OFFENSIVE;
+        Tactic newTactic = Tactic.ATTACK;
 
         Mockito.when(mockLeagueManager.getUserTeam()).thenReturn(mockTeam);
 
