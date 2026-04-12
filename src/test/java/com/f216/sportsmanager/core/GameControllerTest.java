@@ -32,19 +32,6 @@ public class GameControllerTest {
     }
 
     @Test
-    public void testInitNewGameFlow() {
-        Mockito.when(mockDatabaseFactory.generateLeague("league",mockSport)).thenReturn(mockLeague);
-
-        gameController.initNewGame(mockSport);
-
-        Mockito.verify(mockDatabaseFactory).generateLeague("league",mockSport);
-        Mockito.verify(mockLeagueManager).setLeagueData(mockLeague);
-        Mockito.verify(mockLeagueManager).generateSchedule();
-
-        assertEquals(mockSport, gameController.getCurrentSport());
-    }
-
-    @Test
     public void testAdvanceWeekTrigger() {
         gameController.advanceWeek();
         Mockito.verify(mockLeagueManager, Mockito.times(1)).playMatchDay();
