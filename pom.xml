@@ -4,13 +4,13 @@
 
   <groupId>com.f216</groupId>
   <artifactId>sports-manager</artifactId>
-  <version>1.0.0</version>
+  <version>1.0.1-SNAPSHOT</version>
   <name>sports-manager</name>
 
   <scm>
     <developerConnection>scm:git:https://github.com/tunctarim/sports-manager.git</developerConnection>
     <url>https://github.com/tunctarim/sports-manager</url>
-    <tag>sports-manager-1.0.0</tag>
+    <tag>HEAD</tag>
   </scm>
 
   <properties>
