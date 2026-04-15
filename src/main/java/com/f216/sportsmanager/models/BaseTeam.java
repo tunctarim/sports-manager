@@ -23,7 +23,7 @@ public abstract class BaseTeam implements ITeam, Serializable {
     public BaseTeam(String name, List<IPlayer> players, Tactic tactic) {
         if (name == null || name.isBlank())
             throw new IllegalArgumentException("Team name cannot be empty.");
-        teamName = name;
+        this.teamName = name;
         this.tactic = tactic;
         this.players = players;
         this.teamId = UUID.randomUUID().toString();
@@ -33,6 +33,12 @@ public abstract class BaseTeam implements ITeam, Serializable {
         this.pointsFor = 0;
         this.pointsAgainst = 0;
     }
+
+    @Override
+    public String getTeamName() {
+        return teamName;
+    }
+
 
     @Override
     public List<IPlayer> getPlayers() {

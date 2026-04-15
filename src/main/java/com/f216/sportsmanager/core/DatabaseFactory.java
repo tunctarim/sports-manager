@@ -10,8 +10,8 @@ import java.util.*;
 
 public class DatabaseFactory {
     private static final String NAMES_FILE = "src/main/resources/names";
-    private static final String SAVE_PATH = "league_data.dat";
-    private static final Random RANDOM = new Random();
+    private static final String SAVE_DIR = "src/main/saves";
+    static final String SAVE_PATH = SAVE_DIR + "/league_data.dat";    private static final Random RANDOM = new Random();
     static class Player extends BasePlayer implements Serializable {
         Player(String name, int age, Gender gender, PlayerPosition position) {
             super(name, age, gender, position);
@@ -27,11 +27,31 @@ public class DatabaseFactory {
     /**
      * Creates a league for the specified sport type.
      */
-    public static League generateLeague(String name, ISport sport) {
-        if (sport == null) {
-            throw new IllegalArgumentException("Sport type must not be null.");
+    public static League generateLeague(String leagueName, ISport sport) {
+        if (sport == null) throw new IllegalArgumentException("Sport cannot be null");
+
+        League league = new League(leagueName, sport);
+        String teamFilePath = "src/main/resources/teamNames.txt";
+        int TEAM_LIMIT = 20;
+
+        try {
+            List<String> allNames = Files.readAllLines(Paths.get(teamFilePath));
+
+            Collections.shuffle(allNames);
+
+            for (int i = 0; i < allNames.size() && league.getTeamCount() < TEAM_LIMIT; i++) {
+                String name = allNames.get(i).trim();
+                if (name.isBlank()) continue;
+
+                ITeam team = createTeam(name, sport, Tactic.BALANCED);
+                league.addTeam(team);
+            }
+
+        } catch (IOException e) {
+            System.err.println("Error reading teamNames.txt: " + e.getMessage());
         }
-        return new League(name, sport);
+
+        return league;
     }
 
     protected static List<String> loadNames(String gender) {
@@ -117,11 +137,23 @@ public class DatabaseFactory {
         return assetMap;
     }
 
-    public static void save(League league) {
+    public static boolean save(League league) {
+        if (league == null) {
+            System.err.println("Cannot save a null league.");
+            return false;
+        }
+
+        File directory = new File(SAVE_DIR);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(SAVE_PATH))) {
             oos.writeObject(league);
+            return true;
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Failed to save league data: " + e.getMessage());
+            return false;
         }
     }
 

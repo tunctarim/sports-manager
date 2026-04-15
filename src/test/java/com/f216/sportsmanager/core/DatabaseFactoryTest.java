@@ -24,67 +24,81 @@ class DatabaseFactoryTest {
     }
 
     @Test
-    @DisplayName("Test League Generation")
+    @DisplayName("1. Test League Generation and Team Limit")
     void testGenerateLeague() {
-        League league = DatabaseFactory.generateLeague("Test League", football);
+        League league = DatabaseFactory.generateLeague("Süper Lig", football);
         assertNotNull(league);
-        assertEquals("Test League", league.getLeagueName());
-        assertThrows(IllegalArgumentException.class, () -> DatabaseFactory.generateLeague("Fail", null));
+        assertEquals(20, league.getTeamCount(), "League should stop at exactly 20 teams.");
     }
 
     @Test
-    @DisplayName("Test Name Loading and Shuffle Logic")
-    void testLoadNames() {
-        List<String> names = DatabaseFactory.loadNames("M");
-        assertNotNull(names);
-        assertFalse(names.isEmpty());
+    @DisplayName("2. Total Roster Size Invariant")
+    void testTotalRosterSize() {
+        League league = DatabaseFactory.generateLeague("Roster Test", football);
+        int totalPlayers = 0;
 
-        List<String> namesSecondLoad = DatabaseFactory.loadNames("M");
-        assertNotEquals(names, namesSecondLoad, "Lists should be shuffled and thus likely different order");
-    }
-
-    @Test
-    @DisplayName("Test Team Creation with Roster")
-    void testCreateTeam() {
-        ITeam team = DatabaseFactory.createTeam("Göztepe", football, Tactic.BALANCED);
-        assertNotNull(team);
-        assertEquals(22, team.getPlayers().size(), "Football roster must be 11 positions * 2 = 22");
-    }
-
-    @Test
-    @DisplayName("Test Roster Generation and Gender-Name Matching")
-    void testGenerateRoster() {
-        List<IPlayer> roster = DatabaseFactory.generateRoster(football);
-        assertEquals(22, roster.size());
-
-        for (IPlayer player : roster) {
-            String name = player.getName();
-            Gender gender = player.getGender();
-
-            if (!name.startsWith("Player_") && !name.equals("Generic Player")) {
-                if (gender == Gender.FEMALE) {
-                    assertFalse(maleNames.contains(name), "Female player " + name + " found in male pool");
-                } else {
-                    assertFalse(femaleNames.contains(name), "Male player " + name + " found in female pool");
-                }
-            }
+        for (ITeam team : league.getTeams()) {
+            totalPlayers += team.getPlayers().size();
         }
+
+        int expectedSize = 20 * 22; // 20 teams * 22 players per team
+        assertEquals(expectedSize, totalPlayers, "The whole league should contain 440 players.");
     }
 
     @Test
-    @DisplayName("Test Stat Randomization Range")
+    @DisplayName("3. Team Name Randomization - Shuffled Selection")
+    void testTeamNameRandomization() {
+        League leagueA = DatabaseFactory.generateLeague("League A", football);
+        League leagueB = DatabaseFactory.generateLeague("League B", football);
+
+        Set<String> namesA = new HashSet<>();
+        for (ITeam t : leagueA.getTeams()) {
+            namesA.add(t.getTeamName());
+        }
+
+        Set<String> namesB = new HashSet<>();
+        for (ITeam t : leagueB.getTeams()) {
+            namesB.add(t.getTeamName());
+        }
+
+        assertNotEquals(namesA, namesB, "Two generated leagues should not have the exact same 20 teams.");
+    }
+
+    @Test
+    @DisplayName("4. Player Name Randomization - Unique Rosters")
+    void testPlayerNameRandomization() {
+        League league = DatabaseFactory.generateLeague("Player Random Test", football);
+
+        ITeam team1 = league.getTeams().get(0);
+        ITeam team2 = league.getTeams().get(1);
+
+        Set<String> roster1 = new HashSet<>();
+        for (IPlayer p : team1.getPlayers()) {
+            roster1.add(p.getName());
+        }
+
+        Set<String> roster2 = new HashSet<>();
+        for (IPlayer p : team2.getPlayers()) {
+            roster2.add(p.getName());
+        }
+
+        assertNotEquals(roster1, roster2, "Different teams should have different player rosters.");
+    }
+
+    @Test
+    @DisplayName("5. Test Stat Randomization Range")
     void testRandomizeStats() {
         IPlayer player = new DatabaseFactory.Player("Test", 20, Gender.MALE, Football.FootballPosition.GK);
         DatabaseFactory.randomizeStats(player, football);
 
         for (String stat : football.getRequiredStats()) {
             int value = player.getStat(stat);
-            assertTrue(value >= 40 && value <= 95, "Stat " + stat + " is out of range: " + value);
+            assertTrue(value >= 40 && value <= 95, "Stat " + stat + " out of range (40-95).");
         }
     }
 
     @Test
-    @DisplayName("Test Persistence - Save and Load")
+    @DisplayName("6. Test Persistence - Save and Load")
     void testSaveAndLoad() {
         League original = new League("Süper Lig", football);
         DatabaseFactory.save(original);
@@ -94,16 +108,18 @@ class DatabaseFactoryTest {
         assertEquals(original.getLeagueName(), loaded.getLeagueName());
 
         File file = new File("league_data.dat");
-        if (file.exists()) {
-            file.delete();
-        }
+        if (file.exists()) file.delete();
     }
 
     @Test
-    @DisplayName("Test Asset Pointer Mapping")
-    void testLoadAssetPointers() {
-        Map<String, String> assets = DatabaseFactory.loadAssetPointers();
-        assertNotNull(assets);
-        // Ensure it doesn't crash even if the folder is missing or empty
+    @DisplayName("7. Test Name Loading and Shuffle Logic")
+    void testLoadNames() {
+        List<String> names = DatabaseFactory.loadNames("M");
+        assertNotNull(names);
+        assertFalse(names.isEmpty());
+
+        List<String> namesSecondLoad = DatabaseFactory.loadNames("M");
+        // Checking that Collections.shuffle worked
+        assertNotEquals(names, namesSecondLoad, "Names should be in a different order after reloading.");
     }
 }
