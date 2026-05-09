@@ -2,12 +2,15 @@ package com.f216.sportsmanager.core;
 
 import com.f216.sportsmanager.enums.EndCondition;
 import com.f216.sportsmanager.enums.Tactic;
+import com.f216.sportsmanager.interfaces.IMatchObserver;
 import com.f216.sportsmanager.interfaces.IPlayer;
 import com.f216.sportsmanager.interfaces.ISport;
 import com.f216.sportsmanager.interfaces.ITeam;
 import com.f216.sportsmanager.models.Fixture;
+import com.f216.sportsmanager.models.MatchEvent;
 import com.f216.sportsmanager.models.MatchResult;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -50,6 +53,12 @@ public class MatchEngine {
 
     private final Random rand = new Random();
 
+    // --- LIVE MODE SUPPORT ---
+    private volatile boolean isPaused = false;
+    private final Object pauseLock = new Object();
+    private final List<IMatchObserver> observers = new ArrayList<>();
+    private final List<MatchEvent> matchEvents = new ArrayList<>();
+
     public void simulateMatch(Fixture fixture, ISport s, int week, boolean isLive) {
         homeTeam = fixture.getHome();
         awayTeam = fixture.getAway();
@@ -73,6 +82,7 @@ public class MatchEngine {
         attackMultiply = 0;
         this.week = week;
         this.isLive = isLive;
+        isPaused = false;
 
         try {
             runGameLoop();
@@ -80,29 +90,43 @@ public class MatchEngine {
             throw new RuntimeException(e);
         }
 
-if (matchResult == null) {
-        matchResult = generateMatchReports(); // safety fallback
-    }
+        if (matchResult == null) {
+            matchResult = generateMatchReports(); // safety fallback
+        }
     }
 
-    private void runGameLoop() throws InterruptedException {  //Currently does not support any UI inputs
-        if (isLive){
-            for (int i = 0; i < segmentLimit; i++) {
-                if (matchResult != null){
-                    return;
-                }
-                processTick();
-                Thread.sleep(tickInterval * 1000L);
-            }
-        }
-        else {
-            for (int i = 0; i < segmentCount; i++) {
-                for (int j = 0; j < segmentLimit; j++) {
-                    if (matchResult != null){
+    private void runGameLoop() throws InterruptedException {
+        if (isLive) {
+            // Live mode: process segment-by-segment with pauses at boundaries
+            for (int segment = 0; segment < segmentCount; segment++) {
+                // Process this segment tick-by-tick with delays
+                for (int i = 0; i < segmentLimit; i++) {
+                    synchronized (pauseLock) {
+                        while (isPaused) {
+                            pauseLock.wait();
+                        }
+                    }
+                    if (matchResult != null) {
                         return;
                     }
                     processTick();
+                    Thread.sleep(tickInterval * 1000L);
                 }
+
+                // PAUSE AT SEGMENT END (e.g., halftime)
+                if (segment < segmentCount - 1) {  // Don't pause after final segment
+                    isPaused = true;
+                    // Notify observers of segment pause
+                    notifySegmentEnd(segment);
+                }
+            }
+        } else {
+            // Non-live mode: process entire match instantly
+            while (tick < matchLength) {
+                if (matchResult != null) {
+                    return;
+                }
+                processTick();
             }
         }
     }
@@ -135,14 +159,27 @@ if (matchResult == null) {
 
                 if (goalRoll < homeShare) {
                     homeScore++;
+                    MatchEvent event = new MatchEvent(
+                            MatchEvent.EventType.GOAL, tick, homeScore, awayScore,
+                            "🎯 Home team scores! (Minute " + getCurrentMinute() + ")"
+                    );
+                    matchEvents.add(event);
+                    notifyObservers(event);
                 } else {
                     awayScore++;
+                    MatchEvent event = new MatchEvent(
+                            MatchEvent.EventType.GOAL, tick, homeScore, awayScore,
+                            "🎯 Away team scores! (Minute " + getCurrentMinute() + ")"
+                    );
+                    matchEvents.add(event);
+                    notifyObservers(event);
                 }
             }
         }
 
         if (checkVictoryStatus()) {
             matchResult = generateMatchReports();
+            notifyMatchEnded();
         }
     }
 
@@ -235,7 +272,126 @@ if (matchResult == null) {
     }
 
     public MatchResult generateMatchReports() {
-        MatchResult matchResult = new MatchResult(homeTeam,awayTeam,homeScore,awayScore,week);
+        MatchResult matchResult = new MatchResult(homeTeam, awayTeam, homeScore, awayScore, week);
         return matchResult;
+    }
+
+    // --- LIVE MODE SUPPORT METHODS ---
+
+    /**
+     * Adds an observer to receive live match events
+     */
+    public void addMatchObserver(IMatchObserver observer) {
+        observers.add(observer);
+    }
+
+    /**
+     * Removes an observer
+     */
+    public void removeMatchObserver(IMatchObserver observer) {
+        observers.remove(observer);
+    }
+
+    /**
+     * Pauses the live match
+     */
+    public void pauseMatch() {
+        isPaused = true;
+    }
+
+    /**
+     * Resumes the live match from pause
+     */
+    public void resumeMatch() {
+        synchronized (pauseLock) {
+            isPaused = false;
+            pauseLock.notifyAll();
+        }
+    }
+
+    /**
+     * Returns true if the match is currently paused
+     */
+    public boolean isPaused() {
+        return isPaused;
+    }
+
+    /**
+     * Gets the current match state during live play
+     */
+    public MatchSnapshot getCurrentMatchState() {
+        return new MatchSnapshot(homeScore, awayScore, tick, matchLength, getCurrentMinute());
+    }
+
+    /**
+     * Gets all match events recorded so far
+     */
+    public List<MatchEvent> getMatchEvents() {
+        return new ArrayList<>(matchEvents);
+    }
+
+    /**
+     * Helper method to convert ticks to match minutes
+     */
+    private int getCurrentMinute() {
+        return Math.round((float) tick / segmentLimit * (matchLength / segmentCount));
+    }
+
+    /**
+     * Notifies all observers of a match event
+     */
+    private void notifyObservers(MatchEvent event) {
+        for (IMatchObserver observer : observers) {
+            observer.onMatchEvent(event);
+        }
+    }
+
+    /**
+     * Notifies observers when a segment ends
+     */
+    private void notifySegmentEnd(int segmentNumber) {
+        MatchEvent event = new MatchEvent(
+                MatchEvent.EventType.SEGMENT_END, tick, homeScore, awayScore,
+                "End of Segment " + (segmentNumber + 1), segmentNumber
+        );
+        matchEvents.add(event);
+        for (IMatchObserver observer : observers) {
+            observer.onSegmentEnd(segmentNumber, homeScore, awayScore);
+        }
+    }
+
+    /**
+     * Notifies observers when the match ends
+     */
+    private void notifyMatchEnded() {
+        if (matchResult != null) {
+            for (IMatchObserver observer : observers) {
+                observer.onMatchEnded(matchResult);
+            }
+        }
+    }
+
+    /**
+     * Inner class to represent a snapshot of the current match state
+     */
+    public static class MatchSnapshot {
+        public final int homeScore;
+        public final int awayScore;
+        public final int currentTick;
+        public final int totalMatchLength;
+        public final int currentMinute;
+
+        public MatchSnapshot(int homeScore, int awayScore, int currentTick, int totalMatchLength, int currentMinute) {
+            this.homeScore = homeScore;
+            this.awayScore = awayScore;
+            this.currentTick = currentTick;
+            this.totalMatchLength = totalMatchLength;
+            this.currentMinute = currentMinute;
+        }
+
+        @Override
+        public String toString() {
+            return String.format("Minute %d/%d | Score: %d - %d", currentMinute, totalMatchLength, homeScore, awayScore);
+        }
     }
 }
