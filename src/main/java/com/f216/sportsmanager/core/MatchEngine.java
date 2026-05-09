@@ -133,6 +133,11 @@ public class MatchEngine {
 
     private void processTick() {
         tick++;
+        
+        for (IMatchObserver observer : observers) {
+            observer.onTick(tick);
+        }
+
         calculateProbabilities();
 
         // 1. Define how likely ANY goal is to happen this tick (e.g., 5% chance)

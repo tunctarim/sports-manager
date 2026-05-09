@@ -19,4 +19,9 @@ public interface IMatchObserver {
      * Called when the match ends
      */
     void onMatchEnded(MatchResult result);
+
+    /**
+     * Called on every tick of the match
+     */
+    void onTick(int tick);
 }
