@@ -135,8 +135,10 @@ public class MatchEngine {
     private void processTick() {
         tick++;
         
-        for (IMatchObserver observer : observers) {
-            observer.onTick(tick);
+        if (isLive) {
+            for (IMatchObserver observer : observers) {
+                observer.onTick(tick);
+            }
         }
 
         calculateProbabilities();
@@ -167,7 +169,7 @@ public class MatchEngine {
                     homeScore++;
                     MatchEvent event = new MatchEvent(
                             MatchEvent.EventType.GOAL, tick, homeScore, awayScore,
-                            "🎯 Home team scores! (Minute " + getCurrentMinute() + ")"
+                            "🎯 " + homeTeam.getTeamName() + " scores! (Minute " + getCurrentMinute() + ")"
                     );
                     matchEvents.add(event);
                     notifyObservers(event);
@@ -175,7 +177,7 @@ public class MatchEngine {
                     awayScore++;
                     MatchEvent event = new MatchEvent(
                             MatchEvent.EventType.GOAL, tick, homeScore, awayScore,
-                            "🎯 Away team scores! (Minute " + getCurrentMinute() + ")"
+                            "🎯 " + awayTeam.getTeamName() + " scores! (Minute " + getCurrentMinute() + ")"
                     );
                     matchEvents.add(event);
                     notifyObservers(event);
@@ -185,7 +187,7 @@ public class MatchEngine {
 
         if (checkVictoryStatus()) {
             matchResult = generateMatchReports();
-            notifyMatchEnded();
+            if (isLive) notifyMatchEnded();
         }
     }
 
@@ -348,6 +350,7 @@ public class MatchEngine {
      */
     public int getCurrentSegment() {return currentSegment;}
     private void notifyObservers(MatchEvent event) {
+        if (!isLive) return;
         for (IMatchObserver observer : observers) {
             observer.onMatchEvent(event);
         }
@@ -357,6 +360,7 @@ public class MatchEngine {
      * Notifies observers when a segment ends
      */
     private void notifySegmentEnd(int segmentNumber) {
+        if (!isLive) return;
         MatchEvent event = new MatchEvent(
                 MatchEvent.EventType.SEGMENT_END, tick, homeScore, awayScore,
                 "End of Segment " + (segmentNumber + 1), segmentNumber
@@ -371,6 +375,7 @@ public class MatchEngine {
      * Notifies observers when the match ends
      */
     private void notifyMatchEnded() {
+        if (!isLive) return;
         if (matchResult != null) {
             for (IMatchObserver observer : observers) {
                 observer.onMatchEnded(matchResult);
