@@ -28,6 +28,7 @@ public class MatchEngine {
     private int segmentCount;
     private int segmentLimit;
     private int week;
+    private int currentSegment;
 
 
     private float HomeAttackScore;
@@ -98,7 +99,7 @@ public class MatchEngine {
     private void runGameLoop() throws InterruptedException {
         if (isLive) {
             // Live mode: process segment-by-segment with pauses at boundaries
-            for (int segment = 0; segment < segmentCount; segment++) {
+            for (currentSegment = 0; currentSegment < segmentCount; currentSegment++) {
                 // Process this segment tick-by-tick with delays
                 for (int i = 0; i < segmentLimit; i++) {
                     synchronized (pauseLock) {
@@ -114,10 +115,10 @@ public class MatchEngine {
                 }
 
                 // PAUSE AT SEGMENT END (e.g., halftime)
-                if (segment < segmentCount - 1) {  // Don't pause after final segment
+                if (currentSegment < segmentCount - 1) {  // Don't pause after final segment
                     isPaused = true;
                     // Notify observers of segment pause
-                    notifySegmentEnd(segment);
+                    notifySegmentEnd(currentSegment);
                 }
             }
         } else {
@@ -345,6 +346,7 @@ public class MatchEngine {
     /**
      * Notifies all observers of a match event
      */
+    public int getCurrentSegment() {return currentSegment;}
     private void notifyObservers(MatchEvent event) {
         for (IMatchObserver observer : observers) {
             observer.onMatchEvent(event);
