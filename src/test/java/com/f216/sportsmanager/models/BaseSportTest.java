@@ -23,8 +23,8 @@ public class BaseSportTest {
             @Override public String getCode() { return code; }
         }
 
-        public MockSport(String name, int ppW, int ppD, int roster, int segments, int limit, EndCondition condition, int tick, List<PlayerPosition> required) {
-            super(name, ppW, ppD, roster, segments, limit, condition, tick, List.of(MockPosition.GK, MockPosition.FLD));
+        public MockSport(String name, int ppW, int ppD, int roster, int segments, int limit, EndCondition condition, int tick, List<PlayerPosition> required, float multiplier) {
+            super(name, ppW, ppD, roster, segments, limit, condition, tick, List.of(MockPosition.GK, MockPosition.FLD), multiplier);
         }
 
         @Override
@@ -40,7 +40,7 @@ public class BaseSportTest {
 
     @Test
     public void testStandardLogic() {
-        BaseSport p = new MockSport("Football", 3, 1, 11, 2, 45, EndCondition.TIME_LIMIT, 30, List.of(MockSport.MockPosition.GK, MockSport.MockPosition.FLD));
+        BaseSport p = new MockSport("Football", 3, 1, 11, 2, 45, EndCondition.TIME_LIMIT, 30, List.of(MockSport.MockPosition.GK, MockSport.MockPosition.FLD), 1.0F);
 
         assertEquals(90, p.getTotalMatchLength());
         assertEquals("Football", p.getSportName());
@@ -48,31 +48,31 @@ public class BaseSportTest {
 
     @Test
     public void testBoundaryValues() {
-        BaseSport p = new MockSport("SinglePeriod", 3, 1, 11, 1, 10, EndCondition.TIME_LIMIT, 1, List.of(MockSport.MockPosition.GK, MockSport.MockPosition.FLD));
+        BaseSport p = new MockSport("SinglePeriod", 3, 1, 11, 1, 10, EndCondition.TIME_LIMIT, 1, List.of(MockSport.MockPosition.GK, MockSport.MockPosition.FLD), 1.0F);
         assertEquals(10, p.getTotalMatchLength());
 
-        p = new MockSport("Instant", 3, 0, 1, 1, 0, EndCondition.TIME_LIMIT, 1, List.of(MockSport.MockPosition.GK, MockSport.MockPosition.FLD));
+        p = new MockSport("Instant", 3, 0, 1, 1, 0, EndCondition.TIME_LIMIT, 1, List.of(MockSport.MockPosition.GK, MockSport.MockPosition.FLD), 1.0F);
         assertEquals(0, p.getTotalMatchLength());
     }
 
     @Test
     public void testNegativeAndInvalidInputs() {
         assertThrows(IllegalArgumentException.class, () -> {
-            new MockSport("", 3, 1, 11, 2, 45, EndCondition.TIME_LIMIT, 30, List.of(MockSport.MockPosition.GK, MockSport.MockPosition.FLD));
+            new MockSport("", 3, 1, 11, 2, 45, EndCondition.TIME_LIMIT, 30, List.of(MockSport.MockPosition.GK, MockSport.MockPosition.FLD), 1.0F);
         }, "Should fail if name is empty");
 
         assertThrows(IllegalArgumentException.class, () -> {
-            new MockSport("Test", 3, 1, -1, 2, 45, EndCondition.TIME_LIMIT, 30, List.of(MockSport.MockPosition.GK, MockSport.MockPosition.FLD));
+            new MockSport("Test", 3, 1, -1, 2, 45, EndCondition.TIME_LIMIT, 30, List.of(MockSport.MockPosition.GK, MockSport.MockPosition.FLD), 1.0F);
         }, "Should fail for negative roster size [cite: 650]");
 
         assertThrows(IllegalArgumentException.class, () -> {
-            new MockSport("Test", 3, 1, 11, 0, 45, EndCondition.TIME_LIMIT, 30, List.of(MockSport.MockPosition.GK, MockSport.MockPosition.FLD));
+            new MockSport("Test", 3, 1, 11, 0, 45, EndCondition.TIME_LIMIT, 30, List.of(MockSport.MockPosition.GK, MockSport.MockPosition.FLD), 1.0F);
         }, "Should fail for zero segments");
     }
 
     @Test
     public void testRequiredStats() {
-        BaseSport p = new MockSport("Mock", 3, 1, 11, 2, 45, EndCondition.TIME_LIMIT, 30, List.of(MockSport.MockPosition.GK, MockSport.MockPosition.FLD));
+        BaseSport p = new MockSport("Mock", 3, 1, 11, 2, 45, EndCondition.TIME_LIMIT, 30, List.of(MockSport.MockPosition.GK, MockSport.MockPosition.FLD), 1.0F);
         List<String> stats = p.getRequiredStats();
 
         assertEquals(2, stats.size());

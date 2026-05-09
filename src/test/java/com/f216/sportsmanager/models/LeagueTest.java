@@ -65,6 +65,11 @@ class LeagueTest {
         }
 
         @Override
+        public float getFixedMultiplier() {
+            return 1.0F;
+        }
+
+        @Override
         public int getTotalMatchLength() {
             return 90;
         }
@@ -131,6 +136,11 @@ class LeagueTest {
             @Override
             public int getTickInterval() {
                 return 500;
+            }
+
+            @Override
+            public float getFixedMultiplier() {
+                return 1.0F;
             }
 
             @Override

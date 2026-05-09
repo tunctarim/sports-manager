@@ -77,7 +77,7 @@ public class MatchEngine {
         AwayDefenseScore = 0;
         HomeScoreProbability = 0;
         AwayScoreProbability = 0;
-        FixedMultiplier = 1.0F; //This should be a sport specific value and would not be implemented until M3
+        FixedMultiplier = s.getFixedMultiplier(); //This should be a sport specific value and would not be implemented until M3
         matchResult = null;
         attackMultiply = 0;
         this.week = week;
@@ -137,11 +137,11 @@ public class MatchEngine {
 
         // 1. Define how likely ANY goal is to happen this tick (e.g., 5% chance)
         // Adjust this to control the "pace" of the game.
-        double baseScoringChance = 0.05 + ((double) attackMultiply / 200);
+        double baseScoringChance = (FixedMultiplier / 20) + ((double) attackMultiply / 200);
 
         // 2. Normalize the scores so they are relative to each other
         // This prevents the code from "breaking" if scores are huge.
-        double rawTotal = HomeScoreProbability + AwayScoreProbability;
+        double rawTotal = HomeScoreProbability + AwayScoreProbability + FixedMultiplier;
 
         // Safety check to avoid division by zero
         if (rawTotal > 0) {

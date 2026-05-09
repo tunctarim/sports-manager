@@ -26,7 +26,7 @@ public class Football extends BaseSport {
     }
 
     public Football() {
-        super("Football", 3, 1, 22, 2, 45, EndCondition.TIME_LIMIT, 1000, getRequiredPositionsStatic());
+        super("Football", 3, 1, 22, 2, 45, EndCondition.TIME_LIMIT, 1000, getRequiredPositionsStatic(), 1.0F);
     }
 
     private static List<PlayerPosition> getRequiredPositionsStatic() {

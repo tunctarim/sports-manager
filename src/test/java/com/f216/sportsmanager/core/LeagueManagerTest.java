@@ -25,6 +25,12 @@ class LeagueManagerTest {
         @Override public int    getRosterSize()       { return 11; }
         @Override public int    getSegmentLimit()     { return 45; }
         @Override public int    getTickInterval()     { return 1000; }
+
+        @Override
+        public float getFixedMultiplier() {
+            return 1.0F;
+        }
+
         @Override public int    getTotalMatchLength() { return 90; }
         @Override public List<String> getRequiredStats() { return List.of("pace", "shooting"); }
         @Override public EndCondition getEndCondition()  { return EndCondition.TIME_LIMIT; }

@@ -27,7 +27,7 @@ public class Basketball extends BaseSport {
     }
 
     public Basketball() {
-        super("Basketball", 1, 0, 15, 4, 10, EndCondition.TIME_LIMIT, 1000, getRequiredPositionsStatic());
+        super("Basketball", 1, 0, 15, 4, 10, EndCondition.TIME_LIMIT, 1000, getRequiredPositionsStatic(), 10000.0F);
     }
 
     private static List<PlayerPosition> getRequiredPositionsStatic() {

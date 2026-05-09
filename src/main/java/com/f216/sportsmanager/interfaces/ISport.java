@@ -23,6 +23,8 @@ public interface ISport{
     int getTickInterval();
     // Returns how many milliseconds a “tick” (1 minute or 1 rally) lasts.
 
+    float getFixedMultiplier();
+
     int getTotalMatchLength();
     // Returns Segment Count * Segment Limit, which is the total match length.
 

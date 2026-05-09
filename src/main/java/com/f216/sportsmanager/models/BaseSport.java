@@ -18,9 +18,11 @@ public abstract class BaseSport implements ISport, Serializable {
     private final EndCondition endCondition;
     private final int tickInterval;
     private final List<PlayerPosition> requiredPositions;
+    private final float multiplier;
 
 
-    public BaseSport(String name, int ppW, int ppD, int roster, int segments, int limit, EndCondition condition, int tickInterval, List<PlayerPosition> positions) {
+    public BaseSport(String name, int ppW, int ppD, int roster, int segments, int limit, EndCondition condition, int tickInterval, List<PlayerPosition> positions, float multiplier) {
+        this.multiplier = multiplier;
 
         if (name == null || name.isEmpty()) throw new IllegalArgumentException("Sport name cannot be empty.");
         if (roster <= 0) throw new IllegalArgumentException("Roster size must be positive.");
@@ -47,6 +49,11 @@ public abstract class BaseSport implements ISport, Serializable {
     @Override
     public int getPointsPerWin() {
         return pointsPerWin;
+    }
+
+    @Override
+    public float getFixedMultiplier() {
+        return multiplier;
     }
 
     @Override
