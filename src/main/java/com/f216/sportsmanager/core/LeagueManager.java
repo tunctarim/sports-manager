@@ -72,10 +72,16 @@ public class LeagueManager {
         int weekNumber = currentWeek + 1;
 
         for (Fixture fixture : schedule.get(currentWeek)) {
+            boolean isUserMatch = false;
+            if (userTeam != null) {
+                isUserMatch = fixture.getHome().getTeamName().equals(userTeam.getTeamName()) ||
+                              fixture.getAway().getTeamName().equals(userTeam.getTeamName());
+            }
+
             matchEngine.simulateMatch(
                     fixture,
                     league.getSportType(), weekNumber,
-                    false
+                    isUserMatch
             );
 
             MatchResult result = matchEngine.generateMatchReports();
@@ -118,8 +124,6 @@ public class LeagueManager {
         if (seasonEnded) return true;
         if (schedule.isEmpty()) return false;
 
-        // currentWeek is post-incremented after each playMatchDay();
-        // season ends when all rounds have been played
         if (currentWeek >= schedule.size()) {
             seasonEnded = true;
             List<StandingRecord> standings = getStandingsTable();
@@ -131,20 +135,14 @@ public class LeagueManager {
         return false;
     }
 
-    public League            getLeague()        {
-        return league; }
-    public int               getCurrentWeek()   {
-        return currentWeek; }
-    public int               getTotalWeeks()    {
-        return schedule.size(); }
-    public boolean           isSeasonEnded()    {
-        return seasonEnded; }
-    public ITeam             getChampion()      {
-        return champion; }
-    public ITeam             getUserTeam()      {
-        return userTeam; }
-    public void              setUserTeam(ITeam t) {
-        this.userTeam = t; }
+    public MatchEngine       getMatchEngine()   { return matchEngine; }
+    public League            getLeague()        { return league; }
+    public int               getCurrentWeek()   { return currentWeek; }
+    public int               getTotalWeeks()    { return schedule.size(); }
+    public boolean           isSeasonEnded()    { return seasonEnded; }
+    public ITeam             getChampion()      { return champion; }
+    public ITeam             getUserTeam()      { return userTeam; }
+    public void              setUserTeam(ITeam t) { this.userTeam = t; }
     public List<MatchResult> getPlayedResults() { return Collections.unmodifiableList(playedResults); }
 
     public List<Fixture> getCurrentWeekFixtures() {
@@ -192,10 +190,8 @@ public class LeagueManager {
         int numRounds = n - 1;
         int half      = n / 2;
 
-        ITeam       fixed    = teams.get(0); // g burda
-        List<ITeam> rotating = new ArrayList<>(teams.subList(1, n)); // f b t burda
-
-        // g f b t a b
+        ITeam       fixed    = teams.get(0);
+        List<ITeam> rotating = new ArrayList<>(teams.subList(1, n));
 
         for (int r = 0; r < numRounds; r++) {
             List<Fixture> round = new ArrayList<>();
@@ -204,8 +200,8 @@ public class LeagueManager {
                 round.add(new Fixture(fixed, rotating.get(0)));
 
             for (int i = 1; i < half; i++) {
-                ITeam home = rotating.get(i); // b aldım.
-                ITeam away = rotating.get(n - 1 - i); // t aldım.
+                ITeam home = rotating.get(i);
+                ITeam away = rotating.get(n - 1 - i);
                 if (home != null && away!= null)
                     round.add(new Fixture(home, away));
             }
