@@ -49,27 +49,24 @@ public class SportsManagerApp extends Application {
 
     private void showMainMenu() {
         VBox root = gradientVBox(18, "#0f0c29", "#302b63", "#24243e");
-        root.setPrefSize(440, 560);
+        root.setPrefSize(560, 660);
         root.setPadding(new Insets(36));
 
-        HBox header = new HBox(16);
+        HBox header = new HBox(36);
         header.setAlignment(Pos.CENTER);
         header.getChildren().addAll(
-                TeamLogoGenerator.generate("SM", 58),
+                TeamLogoGenerator.generate("SM", 78),
                 boldLabel("Sports Manager", "white", 28, "-fx-effect: dropshadow(gaussian,#00d4ff,14,0.7,0,0);")
         );
 
-        Label sub = label("Your league. Your rules.", "#94a3b8", 13);
+        Label sub = label("Feel free to enjoy!", "#94a3b8", 13);
         sub.setStyle(sub.getStyle() + "-fx-font-style:italic;");
 
-        Button btnNew  = menuBtn("🆕   New Game",  "#0ea5e9", "#0284c7");
+        Button btnNew  = menuBtn("🆕   New Game", "#0ea5e9", "#0284c7");
         Button btnLoad = menuBtn("📂   Load Game", "#8b5cf6", "#7c3aed");
-        Button btnExit = menuBtn("🚪   Exit",      "#ef4444", "#dc2626");
+        Button btnExit = menuBtn("🚪   Exit", "#ef4444", "#dc2626");
 
-        HBox bottom = hbox(12,
-                ghostBtn("⚙  Settings"),
-                ghostBtn("ℹ  About")
-        );
+        HBox bottom = hbox(32, ghostBtn("⚙  Settings"), ghostBtn("ℹ  About Us"));
 
         btnNew.setOnAction(e  -> showSportSelection());
         btnLoad.setOnAction(e -> {
@@ -78,43 +75,140 @@ public class SportsManagerApp extends Application {
         });
         btnExit.setOnAction(e -> { executor.shutdownNow(); primaryStage.close(); });
 
-        ((Button) bottom.getChildren().get(1)).setOnAction(e ->
-                alert("About",
-                        "Sports Manager\n" + "F216 Team:\n" + "Arda Baran Günhan  •  Nehir Özsarı\n" + "Yiğit Öztürk  •  Ahmet Tunç Tarım"));
+        ((Button) bottom.getChildren().get(1)).setOnAction(e -> showAboutScreen());
 
-        root.getChildren().addAll(header, sub, separator(),
-                btnNew, btnLoad, btnExit, bottom);
-        setScene(root, 440, 560);
+        root.getChildren().addAll(header, sub, separator(), btnNew, btnLoad, btnExit, bottom);
+        setScene(root, 560, 660);
+    }
+
+    private void showAboutScreen() {
+        VBox root = gradientVBox(24, "#1e1b4b", "#312e81", "#1e1b4b");
+        root.setPadding(new Insets(44));
+        root.setPrefSize(560, 660);
+
+        HBox header = new HBox(18);
+        header.setAlignment(Pos.CENTER);
+        Label logoCircle = new Label("SM");
+        logoCircle.setStyle(
+                "-fx-font-size:22px;-fx-font-weight:bold;-fx-text-fill:#c4b5fd;" +
+                        "-fx-background-color:rgba(139,92,246,0.3);" +
+                        "-fx-background-radius:32;-fx-min-width:64;-fx-min-height:64;" +
+                        "-fx-alignment:center;-fx-border-color:#8b5cf6;-fx-border-radius:32;-fx-border-width:2;"
+        );
+        VBox titleBox = new VBox(4,
+                boldLabel("Sports Manager", "#e2e8f0", 20, ""),
+                label("v1.0  •  Team F216", "#c4b5fd", 11)
+        );
+        header.getChildren().addAll(logoCircle, titleBox);
+
+        Label tagline = label("Feel free to enjoy!", "#94a3b8", 13);
+        tagline.setStyle(tagline.getStyle() + "-fx-font-style:italic;");
+
+        Separator sep = separator();
+
+        Label teamLabel = label("DEVELOPMENT TEAM", "#7c3aed", 11);
+
+        String[][] members = {
+                {"NÖ",  "Nehir Özsarı"},
+                {"YÖ",  "Yiğit Öztürk"},
+                {"ATT", "Ahmet Tunç Tarım"}
+        };
+
+        GridPane teamGrid = new GridPane();
+        teamGrid.setHgap(10); teamGrid.setVgap(10);
+        teamGrid.setMaxWidth(Double.MAX_VALUE);
+
+        for (int i = 0; i < members.length; i++) {
+            String initials = members[i][0];
+            String name     = members[i][1];
+
+            Label avatar = new Label(initials);
+            avatar.setStyle(
+                    "-fx-font-size:12px;-fx-font-weight:bold;-fx-text-fill:#c4b5fd;" +
+                            "-fx-background-color:rgba(139,92,246,0.25);" +
+                            "-fx-background-radius:18;-fx-min-width:36;-fx-min-height:36;" +
+                            "-fx-alignment:center;-fx-border-color:rgba(139,92,246,0.5);" +
+                            "-fx-border-radius:18;-fx-border-width:1;"
+            );
+
+            VBox nameBox = new VBox(2,
+                    label(name, "#e2e8f0", 13),
+                    label("Team F216", "#7c3aed", 11)
+            );
+
+            HBox card = new HBox(10, avatar, nameBox);
+            card.setAlignment(Pos.CENTER_LEFT);
+            card.setPadding(new Insets(10, 14, 10, 14));
+            card.setStyle(
+                    "-fx-background-color:rgba(255,255,255,0.06);" +
+                            "-fx-background-radius:8;" +
+                            "-fx-border-color:rgba(139,92,246,0.3);" +
+                            "-fx-border-radius:8;-fx-border-width:0.5;"
+            );
+
+            teamGrid.add(card, i % 2, i / 2);
+            GridPane.setHgrow(card, Priority.ALWAYS);
+        }
+
+        HBox infoRow = new HBox(10);
+        infoRow.setAlignment(Pos.CENTER);
+        infoRow.getChildren().addAll(
+                infoCard("Java",   "Language"),
+                infoCard("JavaFX", "UI Framework"),
+                infoCard("2025",   "Year")
+        );
+
+        Button btnBack = menuBtn("← Back to Main Menu", "#6d28d9", "#5b21b6");
+        btnBack.setOnAction(e -> showMainMenu());
+
+        root.getChildren().addAll(header, tagline, sep, teamLabel, teamGrid, infoRow, btnBack);
+        setScene(root, 560, 660);
+    }
+
+    private VBox infoCard(String value, String label) {
+        VBox card = new VBox(4);
+        card.setAlignment(Pos.CENTER);
+        card.setPadding(new Insets(12));
+        card.setPrefWidth(150);
+        card.setStyle(
+                "-fx-background-color:rgba(255,255,255,0.05);" +
+                        "-fx-background-radius:8;" +
+                        "-fx-border-color:rgba(255,255,255,0.1);" +
+                        "-fx-border-radius:8;-fx-border-width:0.5;"
+        );
+        card.getChildren().addAll(
+                boldLabel(value, "#a78bfa", 16, ""),
+                label(label, "#64748b", 11)
+        );
+        return card;
     }
 
     private void showSportSelection() {
-        VBox root = gradientVBox(16, "#1e1b4b", "#312e81", "#1e1b4b");
-        root.setPadding(new Insets(32));
+        VBox root = gradientVBox(14, "#1e1b4b", "#312e81", "#1e1b4b");
+        root.setPadding(new Insets(28));
         root.getChildren().add(screenTitle("🏆  Select Your Sport"));
 
         Object[][] sports = {
-                {"⚽", "Football", "11v11  •  Time limit  •  2 halves", "#16a34a", null },
-                {"🏐", "Headball", "Custom rules  •  Fast-paced", "#ca8a04", null },
-                {"🏐", "Volleyball", "Score limit  •  Sets  •  6 players", "#0ea5e9", null },
-                {"🏀", "Basketball", "4 quarters  •  Time limit  •  5v5", "#ea580c", null }
+                {"⚽", "Football",   "11v11  •  Time limit  •  2 halves", "#16a34a", null},
+                {"🏐", "Headball",   "Custom rules  •  Fast-paced",        "#ca8a04", null},
+                {"🏐", "Volleyball", "Score limit  •  Sets  •  6 players", "#0ea5e9", null},
+                {"🏀", "Basketball", "4 quarters  •  Time limit  •  5v5",  "#ea580c", null}
         };
 
-        VBox cards = new VBox(10);
+        VBox cards = new VBox(10);   // 30 → 10
         cards.setAlignment(Pos.CENTER);
 
         for (Object[] s : sports) {
-            String  emoji  = (String)  s[0];
-            String  name   = (String)  s[1];
-            String  desc   = (String)  s[2];
-            String  color  = (String)  s[3];
-            ISport  sport  = (ISport)  s[4];
+            String emoji = (String) s[0];
+            String name  = (String) s[1];
+            String desc  = (String) s[2];
+            String color = (String) s[3];
+            ISport sport = (ISport) s[4];
 
             HBox card = sportCard(emoji, name, desc, color);
             card.setOnMouseClicked(e -> {
                 if (sport == null) {
-                    alert("Coming Soon",
-                            name + " is not yet implemented.\n"
-                                    + "Add the ISport implementation and update showSportSelection().");
+                    alert("Coming Soon", name + " is not yet implemented.\n" + "Add the ISport implementation and update showSportSelection().");
                     return;
                 }
                 selectedSport = sport;
@@ -127,18 +221,17 @@ public class SportsManagerApp extends Application {
         Button back = ghostBtn("← Back");
         back.setOnAction(e -> showMainMenu());
         root.getChildren().addAll(cards, back);
-        setScene(root, 440, 560);
+        setScene(root, 560, 660);
     }
 
     private void showTeamManagement() {
         Map<String, Object> data = gc.getDashboardData();
         ITeam myTeam = leagueManager.getUserTeam();
 
-        VBox root = gradientVBox(16, "#052e16", "#14532d", "#052e16");
-        root.setPadding(new Insets(24));
+        VBox root = gradientVBox(36, "#052e16", "#14532d", "#052e16");
+        root.setPadding(new Insets(44));
 
-        String sportName = selectedSport != null
-                ? selectedSport.getSportName() : "Sport Manager";
+        String sportName = selectedSport != null ? selectedSport.getSportName() : "Sport Manager";
         root.getChildren().add(screenTitle("🛠  Team Management  –  " + sportName));
 
         if (myTeam == null) {
@@ -160,18 +253,18 @@ public class SportsManagerApp extends Application {
 
         final ITeam team = myTeam;
 
-        HBox teamHeader = new HBox(14);
+        HBox teamHeader = new HBox(34);
         teamHeader.setAlignment(Pos.CENTER_LEFT);
-        teamHeader.setPadding(new Insets(12, 18, 12, 18));
+        teamHeader.setPadding(new Insets(32, 38, 32, 38));
         teamHeader.setStyle("-fx-background-color:rgba(0,0,0,0.35);-fx-background-radius:14;");
 
-        Canvas logo = TeamLogoGenerator.generate(team.getTeamName(), 52);
-        Label  nameL = boldLabel(team.getTeamName(), "#86efac", 20, "");
-        Label  tacL = label("Tactic: " + team.getTactic().name(), "#34d399", 12);
-        Label  ptsL = label("Points: " + team.getPoints(), "#6ee7b7", 12);
-        teamHeader.getChildren().addAll(logo, new VBox(4, nameL, tacL, ptsL));
+        Canvas logo = TeamLogoGenerator.generate(team.getTeamName(), 72);
+        Label  nameL = boldLabel(team.getTeamName(), "#86efac", 40, "");
+        Label  tacL = label("Tactic: " + team.getTactic().name(), "#34d399", 32);
+        Label  ptsL = label("Points: " + team.getPoints(), "#6ee7b7", 32);
+        teamHeader.getChildren().addAll(logo, new VBox(6, nameL, tacL, ptsL));
 
-        HBox cols = new HBox(10);
+        HBox cols = new HBox(30);
         cols.setAlignment(Pos.TOP_CENTER);
         cols.getChildren().addAll(
                 mgmtCol("📋 Squad Roster", buildRosterItems(team)),
@@ -185,8 +278,8 @@ public class SportsManagerApp extends Application {
         Button btnStandings = actionBtn("📊 Standings", "#7f1d1d");
         Button btnBack = ghostBtn("← Back");
 
-        HBox row1 = hbox(10, btnTactic, btnMatch);
-        HBox row2 = hbox(10, btnSave, btnStandings, btnBack);
+        HBox row1 = hbox(30, btnTactic, btnMatch);
+        HBox row2 = hbox(30, btnSave, btnStandings, btnBack);
 
         btnTactic.setOnAction(e -> {
             ChoiceDialog<Tactic> dlg = new ChoiceDialog<>(team.getTactic(), Tactic.values());
@@ -199,13 +292,13 @@ public class SportsManagerApp extends Application {
             });
         });
 
-        btnMatch.setOnAction(e     -> showMatchScreen());
-        btnSave.setOnAction(e      -> { gc.saveGame(); alert("Saved", "Game saved successfully."); });
+        btnMatch.setOnAction(e -> showMatchScreen());
+        btnSave.setOnAction(e -> { gc.saveGame(); alert("Saved", "Game saved successfully."); });
         btnStandings.setOnAction(e -> showLeagueStandings());
-        btnBack.setOnAction(e      -> showSportSelection());
+        btnBack.setOnAction(e -> showSportSelection());
 
         root.getChildren().addAll(teamHeader, cols, row1, row2);
-        primaryStage.setScene(new Scene(scrollPane(root, "#052e16"), 640, 640));
+        primaryStage.setScene(new Scene(scrollPane(root, "#052e16"), 440, 440));
     }
 
     private void showLeagueStandings() {
@@ -234,30 +327,30 @@ public class SportsManagerApp extends Application {
         );
 
         TableView<StandingsRow> table = new TableView<>();
-        table.setStyle("-fx-background-color:rgba(0,0,0,0.4);"
-                + "-fx-control-inner-background:transparent;");
+        table.setStyle("-fx-background-color:rgba(0,0,0,0.4);" + "-fx-control-inner-background:transparent;");
         table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         table.setPrefHeight(270);
 
         TableColumn<StandingsRow, String> colLogo = new TableColumn<>("");
         colLogo.setCellValueFactory(new PropertyValueFactory<>("teamName"));
         colLogo.setCellFactory(tc -> new TableCell<>() {
+
             @Override
             protected void updateItem(String n, boolean empty) {
                 super.updateItem(n, empty);
-                setGraphic(empty || n == null ? null : TeamLogoGenerator.generate(n, 26));
+                setGraphic(empty || n == null ? null : TeamLogoGenerator.generate(n, 46));
             }
         });
-        colLogo.setPrefWidth(36); colLogo.setResizable(false);
+        colLogo.setPrefWidth(56); colLogo.setResizable(false);
 
         table.getColumns().addAll(colLogo,
-                strCol("#", "pos",38),
-                strCol("Team","teamName",150),
-                strCol("MP","mp",36),
-                strCol("W", "w",36),
-                strCol("L", "l", 36),
-                strCol("GD", "gd", 44),
-                strCol("Pts","pts", 44)
+                strCol("#", "pos",58),
+                strCol("Team","teamName",350),
+                strCol("MP","mp",56),
+                strCol("W", "w",56),
+                strCol("L", "l", 56),
+                strCol("GD", "gd", 64),
+                strCol("Pts","pts", 64)
         );
 
         ObservableList<StandingsRow> rows = FXCollections.observableArrayList();
@@ -275,31 +368,31 @@ public class SportsManagerApp extends Application {
         }
         table.setItems(rows);
 
-        VBox resultsBox = new VBox(6);
+        VBox resultsBox = new VBox(8);
         resultsBox.setStyle("-fx-background-color:rgba(0,0,0,0.25);-fx-background-radius:10;-fx-padding:10;");
-        resultsBox.getChildren().add(boldLabel("📋 Recent Results", "#fca5a5", 13, ""));
+        resultsBox.getChildren().add(boldLabel("📋 Recent Results", "#fca5a5", 33, ""));
         if (recentResults.isEmpty()) {
-            resultsBox.getChildren().add(label("No matches played yet.", "#94a3b8", 12));
+            resultsBox.getChildren().add(label("No matches played yet.", "#94a3b8", 32));
         } else {
             for (MatchResult r : recentResults) {
                 String txt = r.getHomeTeam().getTeamName() + "  " + r.getHomeScore() + " – " + r.getAwayScore() + "  " + r.getAwayTeam().getTeamName() + "   (Week " + r.getWeek() + ")";
-                resultsBox.getChildren().add(label(txt, "#fecdd3", 11));
+                resultsBox.getChildren().add(label(txt, "#fecdd3", 31));
             }
         }
 
-        VBox fixturesBox = new VBox(6);
+        VBox fixturesBox = new VBox(8);
         fixturesBox.setStyle("-fx-background-color:rgba(0,0,0,0.25);-fx-background-radius:10;-fx-padding:10;");
-        fixturesBox.getChildren().add(boldLabel("📅 Next Fixtures", "#fca5a5", 13, ""));
+        fixturesBox.getChildren().add(boldLabel("📅 Next Fixtures", "#fca5a5", 33, ""));
         if (nextFixtures.isEmpty()) {
-            fixturesBox.getChildren().add(label("No upcoming fixtures.", "#94a3b8", 12));
+            fixturesBox.getChildren().add(label("No upcoming fixtures.", "#94a3b8", 32));
         } else {
             for (Fixture f : nextFixtures) {
                 String txt = f.getHome().getTeamName() + "  vs  " + f.getAway().getTeamName();
-                fixturesBox.getChildren().add(label(txt, "#fecdd3", 11));
+                fixturesBox.getChildren().add(label(txt, "#fecdd3", 31));
             }
         }
 
-        HBox extraInfo = new HBox(10, resultsBox, fixturesBox);
+        HBox extraInfo = new HBox(30, resultsBox, fixturesBox);
         extraInfo.setAlignment(Pos.TOP_CENTER);
         HBox.setHgrow(resultsBox,  Priority.ALWAYS);
         HBox.setHgrow(fixturesBox, Priority.ALWAYS);
@@ -316,7 +409,7 @@ public class SportsManagerApp extends Application {
         btnTeam.setOnAction(e -> showTeamManagement());
         btnMenu.setOnAction(e -> showMainMenu());
 
-        root.getChildren().addAll(table, extraInfo, hbox(10, btnNext, btnTeam, btnMenu));
+        root.getChildren().addAll(table, extraInfo, hbox(30, btnNext, btnTeam, btnMenu));
         primaryStage.setScene(new Scene(scrollPane(root, "#450a0a"), 580, 640));
     }
 
@@ -332,32 +425,30 @@ public class SportsManagerApp extends Application {
                 .findFirst()
                 .orElse(null);
 
-        VBox root = gradientVBox(14, "#431407", "#7c2d12", "#431407");
-        root.setPadding(new Insets(24));
+        VBox root = gradientVBox(34, "#431407", "#7c2d12", "#431407");
+        root.setPadding(new Insets(44));
 
         String sportName = selectedSport != null ? selectedSport.getSportName() : "";
         root.getChildren().add(screenTitle("🏟  Match Screen" + (sportName.isEmpty() ? "" : "  –  " + sportName)));
 
         HBox scoreboard = new HBox();
         scoreboard.setAlignment(Pos.CENTER);
-        scoreboard.setPadding(new Insets(14, 24, 14, 24));
+        scoreboard.setPadding(new Insets(34, 44, 34, 44));
         scoreboard.setStyle("-fx-background-color:rgba(0,0,0,0.45);-fx-background-radius:16;");
 
         VBox leftPanel  = teamScorePanel(myTeam);
-        Label scoreLbl  = boldLabel("– vs –", "#fde68a", 28, "-fx-padding:0 24;");
+        Label scoreLbl  = boldLabel("– vs –", "#fde68a", 48, "-fx-padding:0 24;");
         VBox rightPanel = teamScorePanel(opponent);
         HBox.setHgrow(leftPanel,  Priority.ALWAYS);
         HBox.setHgrow(rightPanel, Priority.ALWAYS);
         scoreboard.getChildren().addAll(leftPanel, scoreLbl, rightPanel);
 
-        Label periodLbl = label("Waiting to kick off...", "#fed7aa", 13);
+        Label periodLbl = label("Waiting to kick off...", "#fed7aa", 33);
 
-        HBox lineups = hbox(12,
-                lineupPanel(myTeam,  "🏠"),
-                lineupPanel(opponent,"✈")
+        HBox lineups = hbox(32, lineupPanel(myTeam,  "🏠"), lineupPanel(opponent,"✈")
         );
 
-        root.getChildren().add(boldLabel("📋  Match Events", "#fed7aa", 13, ""));
+        root.getChildren().add(boldLabel("📋  Match Events", "#fed7aa", 33, ""));
         ObservableList<String> events = FXCollections.observableArrayList("Waiting for kick off...");
         ListView<String> eventLog = new ListView<>(events);
         eventLog.setPrefHeight(120);
@@ -422,10 +513,9 @@ public class SportsManagerApp extends Application {
             });
         });
 
-        root.getChildren().addAll(scoreboard, periodLbl, lineups,
-                eventLog, hbox(12, btnSim, btnTac, btnBack));
+        root.getChildren().addAll(scoreboard, periodLbl, lineups, eventLog, hbox(32, btnSim, btnTac, btnBack));
 
-        primaryStage.setScene(new Scene(scrollPane(root, "#431407"), 640, 680));
+        primaryStage.setScene(new Scene(scrollPane(root, "#431407"), 840, 880));
     }
 
     private VBox gradientVBox(int spacing, String... colors) {
@@ -457,7 +547,7 @@ public class SportsManagerApp extends Application {
 
     private Button menuBtn(String text, String base, String hover) {
         Button btn = new Button(text);
-        btn.setPrefWidth(290); btn.setPrefHeight(52);
+        btn.setPrefWidth(490); btn.setPrefHeight(72);
         String s = "-fx-background-color:" + base + ";-fx-text-fill:white;" + "-fx-font-size:16px;-fx-font-weight:bold;" + "-fx-background-radius:14;-fx-cursor:hand;";
         btn.setStyle(s);
         btn.setOnMouseEntered(e -> btn.setStyle(s.replace(base, hover)));
@@ -478,29 +568,37 @@ public class SportsManagerApp extends Application {
     }
 
     private HBox sportCard(String emoji, String name, String desc, String color) {
-        HBox card = new HBox(14);
+        HBox card = new HBox(16);
         card.setAlignment(Pos.CENTER_LEFT);
         card.setPadding(new Insets(14, 20, 14, 20));
-        card.setPrefWidth(360);
-        String base = "-fx-background-color:rgba(255,255,255,0.07);" + "-fx-background-radius:14;-fx-cursor:hand;" + "-fx-border-color:" + color + "66;" + "-fx-border-radius:14;-fx-border-width:1;";
+        card.setPrefWidth(480);
+        String base = "-fx-background-color:rgba(255,255,255,0.07);"
+                + "-fx-background-radius:12;-fx-cursor:hand;"
+                + "-fx-border-color:" + color + "66;"
+                + "-fx-border-radius:12;-fx-border-width:1;";
         card.setStyle(base);
-        card.setOnMouseEntered(e -> card.setStyle(base.replace("0.07","0.15")));
-        card.setOnMouseExited(e  -> card.setStyle(base));
-        Label em = new Label(emoji); em.setStyle("-fx-font-size:28px;");
-        card.getChildren().addAll(em,
-                new VBox(3, boldLabel(name,"white",16,""), label(desc,"#94a3b8",11)));
+        card.setOnMouseEntered(e -> card.setStyle(base.replace("0.07", "0.15")));
+        card.setOnMouseExited( e -> card.setStyle(base));
+
+        Label em = new Label(emoji);
+        em.setStyle("-fx-font-size:22px;");
+
+        card.getChildren().addAll(em, new VBox(3,
+                boldLabel(name, "white", 15, ""),
+                label(desc, "#94a3b8", 12)
+        ));
         return card;
     }
 
     private VBox mgmtCol(String header, List<String> rows) {
-        VBox col = new VBox(7);
+        VBox col = new VBox(9);
         col.setAlignment(Pos.TOP_LEFT);
-        col.setPadding(new Insets(14));
-        col.setPrefWidth(190);
+        col.setPadding(new Insets(34));
+        col.setPrefWidth(390);
         col.setStyle("-fx-background-color:rgba(0,0,0,0.30);-fx-background-radius:12;");
-        col.getChildren().addAll(boldLabel(header, "#86efac", 13, ""), separator());
+        col.getChildren().addAll(boldLabel(header, "#86efac", 33, ""), separator());
         rows.forEach(r -> {
-            Label l = label(r, "#d1fae5", 11);
+            Label l = label(r, "#d1fae5", 31);
             l.setWrapText(true);
             col.getChildren().add(l);
         });
@@ -508,41 +606,39 @@ public class SportsManagerApp extends Application {
     }
 
     private VBox teamScorePanel(ITeam team) {
-        VBox box = new VBox(6);
+        VBox box = new VBox(8);
         box.setAlignment(Pos.CENTER);
         if (team == null) {
-            box.getChildren().add(label("TBD", "#94a3b8", 14));
+            box.getChildren().add(label("TBD", "#94a3b8", 34));
             return box;
         }
-        Label n = boldLabel(team.getTeamName(), "white", 14, "");
+        Label n = boldLabel(team.getTeamName(), "white", 34, "");
         n.setTextAlignment(TextAlignment.CENTER);
         n.setWrapText(true);
         box.getChildren().addAll(
-                TeamLogoGenerator.generate(team.getTeamName(), 44),
+                TeamLogoGenerator.generate(team.getTeamName(), 64),
                 n,
-                label("(" + team.getTactic().name() + ")", "#fed7aa", 11)
+                label("(" + team.getTactic().name() + ")", "#fed7aa", 31)
         );
         return box;
     }
 
     private VBox lineupPanel(ITeam team, String icon) {
-        VBox box = new VBox(5);
-        box.setPadding(new Insets(10));
+        VBox box = new VBox(7);
+        box.setPadding(new Insets(20));
         box.setPrefWidth(240);
         box.setStyle("-fx-background-color:rgba(0,0,0,0.30);-fx-background-radius:10;");
 
         String headerText = team != null ? icon + " " + team.getTeamName() + " Lineup" : icon + " TBD";
-        box.getChildren().addAll(boldLabel(headerText, "#fed7aa", 12, ""), separator());
+        box.getChildren().addAll(boldLabel(headerText, "#fed7aa", 32, ""), separator());
 
         if (team != null) {
             List<IPlayer> players = team.getPlayers();
-            for (int i = 0; i < Math.min(players.size(), 11); i++) {
+            for (int i = 0; i < Math.min(players.size(), 31); i++) {
                 IPlayer p = players.get(i);
                 String pos = p.getPosition() != null ? p.getPosition().getCode() : "?";
                 String injured = p.isInjured() ? " 🚑" : "";
-                Label l = label((i+1) + ". [" + pos + "] " + p.getName()
-                                + "  OVR:" + p.getOverallRating() + injured,
-                        p.isInjured() ? "#f87171" : "#ffedd5", 11);
+                Label l = label((i+1) + ". [" + pos + "] " + p.getName() + "  OVR:" + p.getOverallRating() + injured, p.isInjured() ? "#f87171" : "#ffedd5", 31);
                 box.getChildren().add(l);
             }
         }
@@ -606,8 +702,7 @@ public class SportsManagerApp extends Application {
             IPlayer p = players.get(i);
             items.add(p.getName() + "  OVR: " + p.getOverallRating());
         }
-        double avg = players.stream()
-                .mapToInt(IPlayer::getOverallRating).average().orElse(0);
+        double avg = players.stream().mapToInt(IPlayer::getOverallRating).average().orElse(0);
         items.add("─────────────────────");
         items.add(String.format("Team Avg OVR: %.1f", avg));
         return items;
