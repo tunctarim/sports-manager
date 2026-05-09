@@ -9,6 +9,10 @@ import com.f216.sportsmanager.interfaces.ITeam;
 import com.f216.sportsmanager.models.Fixture;
 import com.f216.sportsmanager.models.MatchResult;
 import com.f216.sportsmanager.models.StandingRecord;
+//import com.f216.sportsmanager.sports.Basketball;
+import com.f216.sportsmanager.sports.Football;
+//import com.f216.sportsmanager.sports.Headball;
+import com.f216.sportsmanager.sports.Volleyball;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -189,13 +193,13 @@ public class SportsManagerApp extends Application {
         root.getChildren().add(screenTitle("🏆  Select Your Sport"));
 
         Object[][] sports = {
-                {"⚽", "Football",   "11v11  •  Time limit  •  2 halves", "#16a34a", null},
-                {"🏐", "Headball",   "Custom rules  •  Fast-paced",        "#ca8a04", null},
-                {"🏐", "Volleyball", "Score limit  •  Sets  •  6 players", "#0ea5e9", null},
-                {"🏀", "Basketball", "4 quarters  •  Time limit  •  5v5",  "#ea580c", null}
+                {"⚽", "Football",   "11v11  •  Time limit  •  2 halves", "#16a34a", new Football()},
+               // {"🏐", "Headball",   "Custom rules  •  Fast-paced",        "#ca8a04", new Headball()},
+                {"🏐", "Volleyball", "Score limit  •  Sets  •  6 players", "#0ea5e9", new Volleyball()},
+               // {"🏀", "Basketball", "4 quarters  •  Time limit  •  5v5",  "#ea580c", new Basketball()}
         };
 
-        VBox cards = new VBox(10);   // 30 → 10
+        VBox cards = new VBox(10);
         cards.setAlignment(Pos.CENTER);
 
         for (Object[] s : sports) {
@@ -259,9 +263,9 @@ public class SportsManagerApp extends Application {
         teamHeader.setStyle("-fx-background-color:rgba(0,0,0,0.35);-fx-background-radius:14;");
 
         Canvas logo = TeamLogoGenerator.generate(team.getTeamName(), 72);
-        Label  nameL = boldLabel(team.getTeamName(), "#86efac", 40, "");
-        Label  tacL = label("Tactic: " + team.getTactic().name(), "#34d399", 32);
-        Label  ptsL = label("Points: " + team.getPoints(), "#6ee7b7", 32);
+        Label  nameL = boldLabel(team.getTeamName(), "#86efac", 18, "");
+        Label  tacL = label("Tactic: " + team.getTactic().name(), "#34d399", 13);
+        Label  ptsL = label("Points: " + team.getPoints(), "#6ee7b7", 13);
         teamHeader.getChildren().addAll(logo, new VBox(6, nameL, tacL, ptsL));
 
         HBox cols = new HBox(30);
@@ -298,7 +302,7 @@ public class SportsManagerApp extends Application {
         btnBack.setOnAction(e -> showSportSelection());
 
         root.getChildren().addAll(teamHeader, cols, row1, row2);
-        primaryStage.setScene(new Scene(scrollPane(root, "#052e16"), 440, 440));
+        primaryStage.setScene(new Scene(scrollPane(root, "#052e16"), 560, 660));
     }
 
     private void showLeagueStandings() {
@@ -370,25 +374,25 @@ public class SportsManagerApp extends Application {
 
         VBox resultsBox = new VBox(8);
         resultsBox.setStyle("-fx-background-color:rgba(0,0,0,0.25);-fx-background-radius:10;-fx-padding:10;");
-        resultsBox.getChildren().add(boldLabel("📋 Recent Results", "#fca5a5", 33, ""));
+        resultsBox.getChildren().add(boldLabel("📋 Recent Results", "#fca5a5", 14, ""));
         if (recentResults.isEmpty()) {
-            resultsBox.getChildren().add(label("No matches played yet.", "#94a3b8", 32));
+            resultsBox.getChildren().add(label("No matches played yet.", "#94a3b8", 12));
         } else {
             for (MatchResult r : recentResults) {
                 String txt = r.getHomeTeam().getTeamName() + "  " + r.getHomeScore() + " – " + r.getAwayScore() + "  " + r.getAwayTeam().getTeamName() + "   (Week " + r.getWeek() + ")";
-                resultsBox.getChildren().add(label(txt, "#fecdd3", 31));
+                resultsBox.getChildren().add(label(txt, "#fecdd3", 12));
             }
         }
 
         VBox fixturesBox = new VBox(8);
         fixturesBox.setStyle("-fx-background-color:rgba(0,0,0,0.25);-fx-background-radius:10;-fx-padding:10;");
-        fixturesBox.getChildren().add(boldLabel("📅 Next Fixtures", "#fca5a5", 33, ""));
+        fixturesBox.getChildren().add(boldLabel("📅 Next Fixtures", "#fca5a5", 14, ""));
         if (nextFixtures.isEmpty()) {
-            fixturesBox.getChildren().add(label("No upcoming fixtures.", "#94a3b8", 32));
+            fixturesBox.getChildren().add(label("No upcoming fixtures.", "#94a3b8", 12));
         } else {
             for (Fixture f : nextFixtures) {
                 String txt = f.getHome().getTeamName() + "  vs  " + f.getAway().getTeamName();
-                fixturesBox.getChildren().add(label(txt, "#fecdd3", 31));
+                fixturesBox.getChildren().add(label(txt, "#fecdd3", 12));
             }
         }
 
@@ -437,18 +441,18 @@ public class SportsManagerApp extends Application {
         scoreboard.setStyle("-fx-background-color:rgba(0,0,0,0.45);-fx-background-radius:16;");
 
         VBox leftPanel  = teamScorePanel(myTeam);
-        Label scoreLbl  = boldLabel("– vs –", "#fde68a", 48, "-fx-padding:0 24;");
+        Label scoreLbl  = boldLabel("– vs –", "#fde68a", 22, "-fx-padding:0 24;");
         VBox rightPanel = teamScorePanel(opponent);
         HBox.setHgrow(leftPanel,  Priority.ALWAYS);
         HBox.setHgrow(rightPanel, Priority.ALWAYS);
         scoreboard.getChildren().addAll(leftPanel, scoreLbl, rightPanel);
 
-        Label periodLbl = label("Waiting to kick off...", "#fed7aa", 33);
+        Label periodLbl = label("Waiting to kick off...", "#fed7aa", 13);
 
         HBox lineups = hbox(32, lineupPanel(myTeam,  "🏠"), lineupPanel(opponent,"✈")
         );
 
-        root.getChildren().add(boldLabel("📋  Match Events", "#fed7aa", 33, ""));
+        root.getChildren().add(boldLabel("📋  Match Events", "#fed7aa", 14, ""));
         ObservableList<String> events = FXCollections.observableArrayList("Waiting for kick off...");
         ListView<String> eventLog = new ListView<>(events);
         eventLog.setPrefHeight(120);
@@ -596,9 +600,9 @@ public class SportsManagerApp extends Application {
         col.setPadding(new Insets(34));
         col.setPrefWidth(390);
         col.setStyle("-fx-background-color:rgba(0,0,0,0.30);-fx-background-radius:12;");
-        col.getChildren().addAll(boldLabel(header, "#86efac", 33, ""), separator());
+        col.getChildren().addAll(boldLabel(header, "#86efac", 14, ""), separator());
         rows.forEach(r -> {
-            Label l = label(r, "#d1fae5", 31);
+            Label l = label(r, "#d1fae5", 12);
             l.setWrapText(true);
             col.getChildren().add(l);
         });
@@ -609,16 +613,16 @@ public class SportsManagerApp extends Application {
         VBox box = new VBox(8);
         box.setAlignment(Pos.CENTER);
         if (team == null) {
-            box.getChildren().add(label("TBD", "#94a3b8", 34));
+            box.getChildren().add(label("TBD", "#94a3b8", 14));
             return box;
         }
-        Label n = boldLabel(team.getTeamName(), "white", 34, "");
+        Label n = boldLabel(team.getTeamName(), "white", 16, "");
         n.setTextAlignment(TextAlignment.CENTER);
         n.setWrapText(true);
         box.getChildren().addAll(
                 TeamLogoGenerator.generate(team.getTeamName(), 64),
                 n,
-                label("(" + team.getTactic().name() + ")", "#fed7aa", 31)
+                label("(" + team.getTactic().name() + ")", "#fed7aa", 12)
         );
         return box;
     }
@@ -630,7 +634,7 @@ public class SportsManagerApp extends Application {
         box.setStyle("-fx-background-color:rgba(0,0,0,0.30);-fx-background-radius:10;");
 
         String headerText = team != null ? icon + " " + team.getTeamName() + " Lineup" : icon + " TBD";
-        box.getChildren().addAll(boldLabel(headerText, "#fed7aa", 32, ""), separator());
+        box.getChildren().addAll(boldLabel(headerText, "#fed7aa", 13, ""), separator());
 
         if (team != null) {
             List<IPlayer> players = team.getPlayers();
@@ -638,7 +642,7 @@ public class SportsManagerApp extends Application {
                 IPlayer p = players.get(i);
                 String pos = p.getPosition() != null ? p.getPosition().getCode() : "?";
                 String injured = p.isInjured() ? " 🚑" : "";
-                Label l = label((i+1) + ". [" + pos + "] " + p.getName() + "  OVR:" + p.getOverallRating() + injured, p.isInjured() ? "#f87171" : "#ffedd5", 31);
+                Label l = label((i+1) + ". [" + pos + "] " + p.getName() + "  OVR:" + p.getOverallRating() + injured, p.isInjured() ? "#f87171" : "#ffedd5", 12);
                 box.getChildren().add(l);
             }
         }
