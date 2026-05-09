@@ -144,7 +144,7 @@ public class MainFX extends Application {
         root.setCenter(displayArea);
         BorderPane.setMargin(displayArea, new Insets(15, 15, 15, 0));
 
-        Scene scene = new Scene(root, 850, 550);
+        Scene scene = new Scene(root, 850, 1080);
         primaryStage.setTitle("CE216 Sports Manager");
         primaryStage.setScene(scene);
         primaryStage.show();

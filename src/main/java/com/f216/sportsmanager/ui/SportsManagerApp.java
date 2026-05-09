@@ -11,7 +11,6 @@ import com.f216.sportsmanager.models.MatchResult;
 import com.f216.sportsmanager.models.StandingRecord;
 import com.f216.sportsmanager.sports.Basketball;
 import com.f216.sportsmanager.sports.Football;
-import com.f216.sportsmanager.sports.Headball;
 import com.f216.sportsmanager.sports.Volleyball;
 
 import javafx.application.Application;
@@ -194,7 +193,6 @@ public class SportsManagerApp extends Application {
 
         Object[][] sports = {
                 {"⚽", "Football",   "11v11  •  Time limit  •  2 halves", "#16a34a", new Football()},
-                {"🏐", "Headball",   "Custom rules  •  Fast-paced",        "#ca8a04", new Headball()},
                 {"🏐", "Volleyball", "Score limit  •  Sets  •  6 players", "#0ea5e9", new Volleyball()},
                 {"🏀", "Basketball", "4 quarters  •  Time limit  •  5v5",  "#ea580c", new Basketball()}
         };
@@ -251,7 +249,7 @@ public class SportsManagerApp extends Application {
             Button back = ghostBtn("← Back");
             back.setOnAction(e -> showMainMenu());
             root.getChildren().add(back);
-            setScene(root, 640, 300);
+            setScene(root, 640, 850);
             return;
         }
 
@@ -302,7 +300,7 @@ public class SportsManagerApp extends Application {
         btnBack.setOnAction(e -> showSportSelection());
 
         root.getChildren().addAll(teamHeader, cols, row1, row2);
-        primaryStage.setScene(new Scene(scrollPane(root, "#052e16"), 560, 660));
+        primaryStage.setScene(new Scene(scrollPane(root, "#052e16"), 560, 850));
     }
 
     private void showLeagueStandings() {
@@ -414,7 +412,7 @@ public class SportsManagerApp extends Application {
         btnMenu.setOnAction(e -> showMainMenu());
 
         root.getChildren().addAll(table, extraInfo, hbox(30, btnNext, btnTeam, btnMenu));
-        primaryStage.setScene(new Scene(scrollPane(root, "#450a0a"), 580, 640));
+        primaryStage.setScene(new Scene(scrollPane(root, "#450a0a"), 580, 900));
     }
 
     private void showMatchScreen() {
