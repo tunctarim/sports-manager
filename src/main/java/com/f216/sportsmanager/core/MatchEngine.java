@@ -110,7 +110,7 @@ public class MatchEngine {
                         return;
                     }
                     processTick();
-                    Thread.sleep(tickInterval * 1000L);
+                    Thread.sleep(tickInterval);
                 }
 
                 // PAUSE AT SEGMENT END (e.g., halftime)
