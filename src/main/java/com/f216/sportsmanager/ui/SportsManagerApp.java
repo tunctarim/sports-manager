@@ -9,9 +9,9 @@ import com.f216.sportsmanager.interfaces.ITeam;
 import com.f216.sportsmanager.models.Fixture;
 import com.f216.sportsmanager.models.MatchResult;
 import com.f216.sportsmanager.models.StandingRecord;
-//import com.f216.sportsmanager.sports.Basketball;
+import com.f216.sportsmanager.sports.Basketball;
 import com.f216.sportsmanager.sports.Football;
-//import com.f216.sportsmanager.sports.Headball;
+import com.f216.sportsmanager.sports.Headball;
 import com.f216.sportsmanager.sports.Volleyball;
 
 import javafx.application.Application;
@@ -194,9 +194,9 @@ public class SportsManagerApp extends Application {
 
         Object[][] sports = {
                 {"⚽", "Football",   "11v11  •  Time limit  •  2 halves", "#16a34a", new Football()},
-               // {"🏐", "Headball",   "Custom rules  •  Fast-paced",        "#ca8a04", new Headball()},
+                {"🏐", "Headball",   "Custom rules  •  Fast-paced",        "#ca8a04", new Headball()},
                 {"🏐", "Volleyball", "Score limit  •  Sets  •  6 players", "#0ea5e9", new Volleyball()},
-               // {"🏀", "Basketball", "4 quarters  •  Time limit  •  5v5",  "#ea580c", new Basketball()}
+                {"🏀", "Basketball", "4 quarters  •  Time limit  •  5v5",  "#ea580c", new Basketball()}
         };
 
         VBox cards = new VBox(10);
