@@ -3,6 +3,9 @@ package com.f216.sportsmanager.sports;
 import com.f216.sportsmanager.enums.*;
 import com.f216.sportsmanager.interfaces.PlayerPosition;
 import com.f216.sportsmanager.models.BaseSport;
+
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Volleyball extends BaseSport {
@@ -34,13 +37,13 @@ public class Volleyball extends BaseSport {
     }
 
     private static List<PlayerPosition> getRequiredPositionsStatic() {
-        return List.of(
-                VolleyballPosition.SET,
-                VolleyballPosition.OH,
-                VolleyballPosition.OPP,
-                VolleyballPosition.MB,
-                VolleyballPosition.LIB
-        );
+        List<PlayerPosition> positions = new ArrayList<>();
+        positions.addAll(Collections.nCopies(2, VolleyballPosition.SET));
+        positions.addAll(Collections.nCopies(4, VolleyballPosition.OH));
+        positions.addAll(Collections.nCopies(2, VolleyballPosition.OPP));
+        positions.addAll(Collections.nCopies(4, VolleyballPosition.MB));
+        positions.addAll(Collections.nCopies(2, VolleyballPosition.LIB));
+        return positions;
     }
 
     @Override
