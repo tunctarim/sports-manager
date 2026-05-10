@@ -4,7 +4,7 @@ import com.f216.sportsmanager.enums.Tactic;
 import com.f216.sportsmanager.interfaces.ISport;
 import com.f216.sportsmanager.interfaces.ITeam;
 import com.f216.sportsmanager.models.League;
-import java.util.Map;
+import com.f216.sportsmanager.models.DashboardData;
 
 import static com.f216.sportsmanager.core.DatabaseFactory.SAVE_PATH;
 
@@ -50,7 +50,7 @@ public class GameController {
         System.out.println("Loading...");
     }
 
-    public Map<String, Object> getDashboardData() {
+    public DashboardData getDashboardData() {
         return leagueManager.getDashboardData();
     }
 

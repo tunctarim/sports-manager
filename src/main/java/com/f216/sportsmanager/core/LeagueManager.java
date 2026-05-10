@@ -5,6 +5,7 @@ import com.f216.sportsmanager.models.Fixture;
 import com.f216.sportsmanager.models.League;
 import com.f216.sportsmanager.models.MatchResult;
 import com.f216.sportsmanager.models.StandingRecord;
+import com.f216.sportsmanager.models.DashboardData;
 
 import java.util.*;
 
@@ -164,20 +165,20 @@ public class LeagueManager {
         return Collections.unmodifiableList(copy);
     }
 
-    public Map<String, Object> getDashboardData() {
+    public DashboardData getDashboardData() {
         requireLeague("getDashboardData");
 
-        Map<String, Object> data = new LinkedHashMap<>();
-        data.put("currentWeek",   currentWeek);
-        data.put("totalWeeks",    schedule.size());
-        data.put("seasonEnded",   seasonEnded);
-        data.put("standings",     league.getStandings());
-        data.put("recentResults", getRecentResults(5));
-        data.put("nextFixtures",  getCurrentWeekFixtures());
-        if (seasonEnded && champion != null) {
-            data.put("champion", champion);
-        }
-        return Collections.unmodifiableMap(data);
+        return new DashboardData(
+            league.getLeagueName(),
+            currentWeek,
+            schedule.size(),
+            seasonEnded,
+            league.getStandings(),
+            getCurrentWeekFixtures(),
+            userTeam,
+            getRecentResults(5),
+            champion
+        );
     }
 
     private List<List<Fixture>> buildRoundRobinRounds(List<ITeam> teams) {

@@ -2,12 +2,9 @@ package com.f216.sportsmanager.models;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.*;
 import java.util.*;
 
 public class DataLoader {
-
-    private static final String DATA_DIR = "data/";
 
     private final List<String> teamNames   = new ArrayList<>();
     private final List<String> maleFirst   = new ArrayList<>();
@@ -52,7 +49,7 @@ public class DataLoader {
     public List<String> allTeamNames() { return Collections.unmodifiableList(teamNames); }
 
     private void loadTeamNames() {
-        if (loadTxt(DATA_DIR + "teamNames.txt", teamNames)) {
+        if (loadTxt("teamNames.txt", teamNames)) {
             log("teamNames.txt installed (" + teamNames.size() + " team)"); return;
         }
         if (loadTeamsFromJson()) {
@@ -66,13 +63,13 @@ public class DataLoader {
     }
 
     private void loadMaleNames() {
-        if (loadTxt(DATA_DIR + "namesM.txt", maleFirst)) {
+        if (loadTxt("namesM.txt", maleFirst)) {
             log("namesM.txt installed (" + maleFirst.size() + " name)"); return;
         }
-        List<String> fromJson = parseJsonKey(DATA_DIR + "names.json", "male");
+        List<String> fromJson = parseJsonKey("names.json", "male");
 
         if (!fromJson.isEmpty()) { maleFirst.addAll(fromJson); return; }
-        List<String> fromCsv = parseCsvCol(DATA_DIR + "names.csv", "male");
+        List<String> fromCsv = parseCsvCol("names.csv", "male");
 
         if (!fromCsv.isEmpty()) { maleFirst.addAll(fromCsv); return; }
         maleFirst.addAll(FALLBACK_MALE_FIRST);
@@ -81,13 +78,13 @@ public class DataLoader {
 
     private void loadFemaleNames() {
 
-        if (loadTxt(DATA_DIR + "namesF.txt", femaleFirst)) {
+        if (loadTxt("namesF.txt", femaleFirst)) {
             log("namesF.txt installed (" + femaleFirst.size() + " name)"); return;
         }
-        List<String> fromJson = parseJsonKey(DATA_DIR + "names.json", "female");
+        List<String> fromJson = parseJsonKey("names.json", "female");
         if (!fromJson.isEmpty()) { femaleFirst.addAll(fromJson); return; }
 
-        List<String> fromCsv = parseCsvCol(DATA_DIR + "names.csv", "female");
+        List<String> fromCsv = parseCsvCol("names.csv", "female");
         if (!fromCsv.isEmpty()) { femaleFirst.addAll(fromCsv); return; }
 
         femaleFirst.addAll(FALLBACK_FEMALE_FIRST);
@@ -95,10 +92,9 @@ public class DataLoader {
     }
 
     private boolean loadTxt(String path, List<String> target) {
-        File f = new File(path);
-        if (!f.exists()) return false;
-        try (BufferedReader br = new BufferedReader(
-                new InputStreamReader(new FileInputStream(f), StandardCharsets.UTF_8))) {
+        try (InputStream is = DataLoader.class.getResourceAsStream("/" + path)) {
+            if (is == null) return false;
+            BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             String line;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
@@ -112,10 +108,9 @@ public class DataLoader {
     }
 
     private boolean loadTeamsFromJson() {
-        File f = new File(DATA_DIR + "teams.json");
-        if (!f.exists()) return false;
-        try {
-            String raw = Files.readString(f.toPath());
+        try (InputStream is = DataLoader.class.getResourceAsStream("/teams.json")) {
+            if (is == null) return false;
+            String raw = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             if (raw.contains("\"name\"")) {
                 for (String token : raw.split("\"name\"\\s*:\\s*\"")) {
                     if (token.startsWith("[") || token.startsWith("{")) continue;
@@ -134,10 +129,9 @@ public class DataLoader {
 
     private List<String> parseJsonKey(String path, String key) {
         List<String> result = new ArrayList<>();
-        File f = new File(path);
-        if (!f.exists()) return result;
-        try {
-            String raw = Files.readString(f.toPath());
+        try (InputStream is = DataLoader.class.getResourceAsStream("/" + path)) {
+            if (is == null) return result;
+            String raw = new String(is.readAllBytes(), StandardCharsets.UTF_8);
             int idx = raw.indexOf("\"" + key + "\"");
             if (idx < 0) return result;
             int start = raw.indexOf('[', idx);
@@ -153,9 +147,9 @@ public class DataLoader {
     }
 
     private boolean loadTeamsFromCsv() {
-        File f = new File(DATA_DIR + "teams.csv");
-        if (!f.exists()) return false;
-        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+        try (InputStream is = DataLoader.class.getResourceAsStream("/teams.csv")) {
+            if (is == null) return false;
+            BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             String line; boolean first = true;
             while ((line = br.readLine()) != null) {
                 if (first) { first = false; continue; }
@@ -171,9 +165,9 @@ public class DataLoader {
 
     private List<String> parseCsvCol(String path, String colName) {
         List<String> result = new ArrayList<>();
-        File f = new File(path);
-        if (!f.exists()) return result;
-        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+        try (InputStream is = DataLoader.class.getResourceAsStream("/" + path)) {
+            if (is == null) return result;
+            BufferedReader br = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
             String header = br.readLine();
             if (header == null) return result;
             String[] cols = header.toLowerCase().split(",");

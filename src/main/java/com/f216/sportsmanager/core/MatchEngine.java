@@ -21,6 +21,8 @@ public class MatchEngine {
     private ISport sport;
     private int homeScore;
     private int awayScore;
+    private int homeSegmentsWon;
+    private int awaySegmentsWon;
     private EndCondition endCondition;
     private int tick;
     private int tickInterval;
@@ -29,7 +31,6 @@ public class MatchEngine {
     private int segmentLimit;
     private int week;
     private int currentSegment;
-
 
     private float HomeAttackScore;
     private float HomeDefenseScore;
@@ -46,7 +47,7 @@ public class MatchEngine {
 
     private final float DefensiveTacticGoalMultiplier = 0.75F;
     private final float AttackTacticGoalMultiplier = 1.25F;
-    private float FixedMultiplier; //This would not be implemented until M3
+    private float FixedMultiplier;
 
     private boolean isLive;
     private MatchResult matchResult;
@@ -65,6 +66,8 @@ public class MatchEngine {
         awayTeam = fixture.getAway();
         homeScore = 0;
         awayScore = 0;
+        homeSegmentsWon = 0;
+        awaySegmentsWon = 0;
         tick = 0;
         tickInterval = s.getTickInterval();
         segmentCount = s.getSegmentCount();
@@ -78,7 +81,7 @@ public class MatchEngine {
         AwayDefenseScore = 0;
         HomeScoreProbability = 0;
         AwayScoreProbability = 0;
-        FixedMultiplier = s.getFixedMultiplier(); //This should be a sport specific value and would not be implemented until M3
+        FixedMultiplier = s.getFixedMultiplier();
         matchResult = null;
         attackMultiply = 0;
         this.week = week;
@@ -100,34 +103,57 @@ public class MatchEngine {
         if (isLive) {
             // Live mode: process segment-by-segment with pauses at boundaries
             for (currentSegment = 0; currentSegment < segmentCount; currentSegment++) {
-                // Process this segment tick-by-tick with delays
-                for (int i = 0; i < segmentLimit; i++) {
-                    synchronized (pauseLock) {
-                        while (isPaused) {
-                            pauseLock.wait();
+                if (endCondition == EndCondition.SCORE_LIMIT) {
+                    while (true) {
+                        synchronized (pauseLock) {
+                            while (isPaused) pauseLock.wait();
+                        }
+                        if (matchResult != null) return;
+                        
+                        int currentH = homeScore;
+                        int currentA = awayScore;
+                        processTick();
+                        Thread.sleep(tickInterval);
+                        
+                        if (homeScore == 0 && awayScore == 0 && (currentH > 0 || currentA > 0)) {
+                            break; // segment was won and reset by processTick
                         }
                     }
-                    if (matchResult != null) {
-                        return;
+                } else {
+                    // Process this segment tick-by-tick with delays
+                    for (int i = 0; i < segmentLimit; i++) {
+                        synchronized (pauseLock) {
+                            while (isPaused) {
+                                pauseLock.wait();
+                            }
+                        }
+                        if (matchResult != null) {
+                            return;
+                        }
+                        processTick();
+                        Thread.sleep(tickInterval);
                     }
-                    processTick();
-                    Thread.sleep(tickInterval);
                 }
 
                 // PAUSE AT SEGMENT END (e.g., halftime)
-                if (currentSegment < segmentCount - 1) {  // Don't pause after final segment
+                if (currentSegment < segmentCount - 1 && matchResult == null) {  // Don't pause after final segment
                     isPaused = true;
-                    // Notify observers of segment pause
                     notifySegmentEnd(currentSegment);
                 }
             }
         } else {
             // Non-live mode: process entire match instantly
-            while (tick < matchLength) {
-                if (matchResult != null) {
-                    return;
+            if (endCondition == EndCondition.SCORE_LIMIT) {
+                while (matchResult == null) {
+                    processTick();
                 }
-                processTick();
+            } else {
+                while (tick < matchLength) {
+                    if (matchResult != null) {
+                        return;
+                    }
+                    processTick();
+                }
             }
         }
     }
@@ -143,26 +169,17 @@ public class MatchEngine {
 
         calculateProbabilities();
 
-        // 1. Define how likely ANY goal is to happen this tick (e.g., 5% chance)
-        // Adjust this to control the "pace" of the game.
         double baseScoringChance = (FixedMultiplier / 20) + ((double) attackMultiply / 200);
 
-        // 2. Normalize the scores so they are relative to each other
-        // This prevents the code from "breaking" if scores are huge.
         double rawTotal = HomeScoreProbability + AwayScoreProbability + FixedMultiplier;
 
-        // Safety check to avoid division by zero
         if (rawTotal > 0) {
             double homeShare = HomeScoreProbability / rawTotal;
             double awayShare = AwayScoreProbability / rawTotal;
 
-            // 3. The "Roll"
             double roll = rand.nextDouble();
 
-            // 4. Logic: First check if a goal happens at all
             if (roll < baseScoringChance) {
-                // A goal happened! Now decide who got it based on their "share"
-                // We use a second roll or sub-divide the baseScoringChance
                 double goalRoll = rand.nextDouble();
 
                 if (goalRoll < homeShare) {
@@ -185,6 +202,24 @@ public class MatchEngine {
             }
         }
 
+        if (endCondition == EndCondition.SCORE_LIMIT) {
+            if (homeScore >= segmentLimit && homeScore - awayScore >= 2) {
+                homeSegmentsWon++;
+                homeScore = 0; awayScore = 0;
+            } else if (awayScore >= segmentLimit && awayScore - homeScore >= 2) {
+                awaySegmentsWon++;
+                homeScore = 0; awayScore = 0;
+            } else if ((homeScore >= segmentLimit || awayScore >= segmentLimit) && Math.abs(homeScore - awayScore) < 2) {
+                // Must win by 2 points (standard volleyball rules)
+            } else if (homeScore >= segmentLimit && awayScore < segmentLimit - 1) {
+                homeSegmentsWon++;
+                homeScore = 0; awayScore = 0;
+            } else if (awayScore >= segmentLimit && homeScore < segmentLimit - 1) {
+                awaySegmentsWon++;
+                homeScore = 0; awayScore = 0;
+            }
+        }
+
         if (checkVictoryStatus()) {
             matchResult = generateMatchReports();
             if (isLive) notifyMatchEnded();
@@ -197,17 +232,14 @@ public class MatchEngine {
         AwayAttackScore = 0;
         AwayDefenseScore = 0;
 
-        //This whole section is a placeholder until M3 where the Sport specific classes will implement a player and position based score calculation classes.
         attackMultiply = 0;
         if (homeTeam.getTactic() == Tactic.DEFEND) {
-            // Attack goes down (0.8), Defense goes up (1.2)
             HomeAttackScore = DefensiveTacticGoalMultiplier;
             HomeDefenseScore = 1 + (1 - DefensiveTacticGoalMultiplier);
         }
         else if (homeTeam.getTactic() == Tactic.ATTACK) {
-            // Attack goes up (1.2), Defense goes down (0.8)
             HomeAttackScore = AttackTacticGoalMultiplier;
-            HomeDefenseScore = 1 - (AttackTacticGoalMultiplier - 1); // Fixed subtraction
+            HomeDefenseScore = 1 - (AttackTacticGoalMultiplier - 1);
             attackMultiply += 2;
         }
         else if (homeTeam.getTactic() == Tactic.BALANCED) {
@@ -219,14 +251,13 @@ public class MatchEngine {
             throw new IllegalStateException("Invalid tactic for home team: " + homeTeam.getTactic());
         }
 
-
         if (awayTeam.getTactic() == Tactic.DEFEND) {
             AwayAttackScore = DefensiveTacticGoalMultiplier;
             AwayDefenseScore = 1 + (1 - DefensiveTacticGoalMultiplier);
         }
         else if (awayTeam.getTactic() == Tactic.ATTACK) {
             AwayAttackScore = AttackTacticGoalMultiplier;
-            AwayDefenseScore = 1 - (AttackTacticGoalMultiplier - 1); // Fixed subtraction
+            AwayDefenseScore = 1 - (AttackTacticGoalMultiplier - 1);
             attackMultiply += 2;
         }
         else if (awayTeam.getTactic() == Tactic.BALANCED) {
@@ -237,8 +268,6 @@ public class MatchEngine {
         else {
             throw new IllegalStateException("Invalid tactic for away team: " + awayTeam.getTactic());
         }
-
-
 
         List<IPlayer> homePlayers = homeTeam.getPlayers();
         List<IPlayer> awayPlayers = awayTeam.getPlayers();
@@ -253,13 +282,8 @@ public class MatchEngine {
         }
         AwayCapability = AwayCapability / awayPlayers.size();
 
-
         HomeScoreProbability = FixedMultiplier * HomeAttackScore * AwayDefenseScore * HomeCapability * homeAdvantageMultiplier;
         AwayScoreProbability = FixedMultiplier *  AwayAttackScore * HomeDefenseScore * AwayCapability;
-    }
-
-    private boolean determineScoringEvents() {
-        return false;
     }
 
     private boolean checkVictoryStatus() {
@@ -269,47 +293,38 @@ public class MatchEngine {
         if (endCondition == EndCondition.TIME_LIMIT && tick >= matchLength) {
             return true;
         }
-        if (endCondition == EndCondition.SCORE_LIMIT && (homeScore >= matchLength || awayScore >= matchLength)){
-            return true;
+        if (endCondition == EndCondition.SCORE_LIMIT) {
+            int segmentsToWin = (segmentCount / 2) + 1;
+            if (homeSegmentsWon >= segmentsToWin || awaySegmentsWon >= segmentsToWin) {
+                return true;
+            }
         }
         if (endCondition == EndCondition.KNOCKOUT){
-            //Implement KNOCKOUT End Condition for M3
             return false;
         }
         return false;
     }
 
     public MatchResult generateMatchReports() {
-        MatchResult matchResult = new MatchResult(homeTeam, awayTeam, homeScore, awayScore, week);
-        return matchResult;
+        if (endCondition == EndCondition.SCORE_LIMIT) {
+            return new MatchResult(homeTeam, awayTeam, homeSegmentsWon, awaySegmentsWon, week);
+        }
+        return new MatchResult(homeTeam, awayTeam, homeScore, awayScore, week);
     }
 
     // --- LIVE MODE SUPPORT METHODS ---
-
-    /**
-     * Adds an observer to receive live match events
-     */
     public void addMatchObserver(IMatchObserver observer) {
         observers.add(observer);
     }
 
-    /**
-     * Removes an observer
-     */
     public void removeMatchObserver(IMatchObserver observer) {
         observers.remove(observer);
     }
 
-    /**
-     * Pauses the live match
-     */
     public void pauseMatch() {
         isPaused = true;
     }
 
-    /**
-     * Resumes the live match from pause
-     */
     public void resumeMatch() {
         synchronized (pauseLock) {
             isPaused = false;
@@ -317,38 +332,28 @@ public class MatchEngine {
         }
     }
 
-    /**
-     * Returns true if the match is currently paused
-     */
     public boolean isPaused() {
         return isPaused;
     }
 
-    /**
-     * Gets the current match state during live play
-     */
     public MatchSnapshot getCurrentMatchState() {
+        if (endCondition == EndCondition.SCORE_LIMIT) {
+            return new MatchSnapshot(homeSegmentsWon, awaySegmentsWon, tick, matchLength, getCurrentMinute());
+        }
         return new MatchSnapshot(homeScore, awayScore, tick, matchLength, getCurrentMinute());
     }
 
-    /**
-     * Gets all match events recorded so far
-     */
     public List<MatchEvent> getMatchEvents() {
         return new ArrayList<>(matchEvents);
     }
 
-    /**
-     * Helper method to convert ticks to match minutes
-     */
     private int getCurrentMinute() {
+        if (segmentCount == 0) return 0;
         return Math.round((float) tick / segmentLimit * (matchLength / segmentCount));
     }
 
-    /**
-     * Notifies all observers of a match event
-     */
     public int getCurrentSegment() {return currentSegment;}
+
     private void notifyObservers(MatchEvent event) {
         if (!isLive) return;
         for (IMatchObserver observer : observers) {
@@ -356,24 +361,22 @@ public class MatchEngine {
         }
     }
 
-    /**
-     * Notifies observers when a segment ends
-     */
     private void notifySegmentEnd(int segmentNumber) {
         if (!isLive) return;
+        
+        int hScore = (endCondition == EndCondition.SCORE_LIMIT) ? homeSegmentsWon : homeScore;
+        int aScore = (endCondition == EndCondition.SCORE_LIMIT) ? awaySegmentsWon : awayScore;
+
         MatchEvent event = new MatchEvent(
-                MatchEvent.EventType.SEGMENT_END, tick, homeScore, awayScore,
+                MatchEvent.EventType.SEGMENT_END, tick, hScore, aScore,
                 "End of Segment " + (segmentNumber + 1), segmentNumber
         );
         matchEvents.add(event);
         for (IMatchObserver observer : observers) {
-            observer.onSegmentEnd(segmentNumber, homeScore, awayScore);
+            observer.onSegmentEnd(segmentNumber, hScore, aScore);
         }
     }
 
-    /**
-     * Notifies observers when the match ends
-     */
     private void notifyMatchEnded() {
         if (!isLive) return;
         if (matchResult != null) {
@@ -383,9 +386,6 @@ public class MatchEngine {
         }
     }
 
-    /**
-     * Inner class to represent a snapshot of the current match state
-     */
     public static class MatchSnapshot {
         public final int homeScore;
         public final int awayScore;

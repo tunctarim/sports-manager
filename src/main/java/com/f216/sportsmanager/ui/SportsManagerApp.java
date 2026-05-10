@@ -11,6 +11,7 @@ import com.f216.sportsmanager.models.Fixture;
 import com.f216.sportsmanager.models.MatchEvent;
 import com.f216.sportsmanager.models.MatchResult;
 import com.f216.sportsmanager.models.StandingRecord;
+import com.f216.sportsmanager.models.DashboardData;
 import com.f216.sportsmanager.sports.Basketball;
 import com.f216.sportsmanager.sports.Football;
 import com.f216.sportsmanager.sports.Volleyball;
@@ -227,7 +228,7 @@ public class SportsManagerApp extends Application {
     }
 
     private void showTeamManagement() {
-        Map<String, Object> data = gc.getDashboardData();
+        DashboardData data = gc.getDashboardData();
         ITeam myTeam = leagueManager.getUserTeam();
 
         VBox root = gradientVBox(15, "#052e16", "#14532d", "#052e16");
@@ -237,8 +238,8 @@ public class SportsManagerApp extends Application {
         root.getChildren().add(screenTitle("🛠  Team Management  –  " + sportName));
 
         if (myTeam == null) {
-            List<StandingRecord> standings = (List<StandingRecord>) data.getOrDefault("standings", List.of());
-            if (!standings.isEmpty()) {
+            List<StandingRecord> standings = data.getStandings();
+            if (standings != null && !standings.isEmpty()) {
                 myTeam = standings.get(0).getTeam();
                 leagueManager.setUserTeam(myTeam);
             }
@@ -306,19 +307,18 @@ public class SportsManagerApp extends Application {
     }
 
     private void showLeagueStandings() {
-        Map<String, Object> data = gc.getDashboardData();
+        DashboardData data = gc.getDashboardData();
 
-        int currentWeek = (int) data.getOrDefault("currentWeek", 0);
-        int totalWeeks  = (int) data.getOrDefault("totalWeeks",  0);
-        boolean seasonEnded = (boolean) data.getOrDefault("seasonEnded", false);
-        List<StandingRecord> standings = (List<StandingRecord>) data.getOrDefault("standings", List.of());
-        List<MatchResult> recentResults = (List<MatchResult>) data.getOrDefault("recentResults", List.of());
-        List<Fixture> nextFixtures = (List<Fixture>) data.getOrDefault("nextFixtures", List.of());
+        int currentWeek = data.getCurrentWeek();
+        int totalWeeks  = data.getTotalWeeks();
+        boolean seasonEnded = data.isSeasonEnded();
+        List<StandingRecord> standings = data.getStandings();
+        List<MatchResult> recentResults = data.getRecentResults();
+        List<Fixture> nextFixtures = data.getWeeklySchedule();
 
         String championName = "";
-        if (seasonEnded && data.containsKey("champion")) {
-            ITeam champ = (ITeam) data.get("champion");
-            championName = champ.getTeamName();
+        if (seasonEnded && data.getChampion() != null) {
+            championName = data.getChampion().getTeamName();
         }
 
         VBox root = gradientVBox(10, "#450a0a", "#7f1d1d", "#450a0a");
@@ -358,24 +358,26 @@ public class SportsManagerApp extends Application {
         );
 
         ObservableList<StandingsRow> rows = FXCollections.observableArrayList();
-        for (int i = 0; i < standings.size(); i++) {
-            StandingRecord sr = standings.get(i);
-            rows.add(new StandingsRow(
-                    String.valueOf(i + 1),
-                    sr.getTeam().getTeamName(),
-                    String.valueOf(sr.getMatchesPlayed()),
-                    String.valueOf(sr.getWins()),
-                    String.valueOf(sr.getLosses()),
-                    (sr.getGoalDifference() >= 0 ? "+" : "") + sr.getGoalDifference(),
-                    String.valueOf(sr.getPoints())
-            ));
+        if (standings != null) {
+            for (int i = 0; i < standings.size(); i++) {
+                StandingRecord sr = standings.get(i);
+                rows.add(new StandingsRow(
+                        String.valueOf(i + 1),
+                        sr.getTeam().getTeamName(),
+                        String.valueOf(sr.getMatchesPlayed()),
+                        String.valueOf(sr.getWins()),
+                        String.valueOf(sr.getLosses()),
+                        (sr.getGoalDifference() >= 0 ? "+" : "") + sr.getGoalDifference(),
+                        String.valueOf(sr.getPoints())
+                ));
+            }
         }
         table.setItems(rows);
 
         VBox resultsBox = new VBox(6);
         resultsBox.setStyle("-fx-background-color:rgba(0,0,0,0.25);-fx-background-radius:10;-fx-padding:10;");
         resultsBox.getChildren().add(boldLabel("📋 Recent Results", "#fca5a5", 14, ""));
-        if (recentResults.isEmpty()) {
+        if (recentResults == null || recentResults.isEmpty()) {
             resultsBox.getChildren().add(label("No matches played yet.", "#94a3b8", 12));
         } else {
             for (MatchResult r : recentResults) {
@@ -387,7 +389,7 @@ public class SportsManagerApp extends Application {
         VBox fixturesBox = new VBox(6);
         fixturesBox.setStyle("-fx-background-color:rgba(0,0,0,0.25);-fx-background-radius:10;-fx-padding:10;");
         fixturesBox.getChildren().add(boldLabel("📅 Next Fixtures", "#fca5a5", 14, ""));
-        if (nextFixtures.isEmpty()) {
+        if (nextFixtures == null || nextFixtures.isEmpty()) {
             fixturesBox.getChildren().add(label("No upcoming fixtures.", "#94a3b8", 12));
         } else {
             for (Fixture f : nextFixtures) {
@@ -418,16 +420,19 @@ public class SportsManagerApp extends Application {
     }
 
     private void showMatchScreen() {
-        Map<String, Object> data = gc.getDashboardData();
+        DashboardData data = gc.getDashboardData();
         ITeam myTeam = leagueManager.getUserTeam();
 
-        List<StandingRecord> standings = (List<StandingRecord>) data.getOrDefault("standings", List.of());
+        List<StandingRecord> standings = data.getStandings();
 
-        ITeam opponent = standings.stream()
-                .map(StandingRecord::getTeam)
-                .filter(t -> myTeam == null || !t.getTeamName().equals(myTeam.getTeamName()))
-                .findFirst()
-                .orElse(null);
+        ITeam opponent = null;
+        if (standings != null) {
+            opponent = standings.stream()
+                    .map(StandingRecord::getTeam)
+                    .filter(t -> myTeam == null || !t.getTeamName().equals(myTeam.getTeamName()))
+                    .findFirst()
+                    .orElse(null);
+        }
 
         VBox root = gradientVBox(12, "#431407", "#7c2d12", "#431407");
         root.setPadding(new Insets(15));

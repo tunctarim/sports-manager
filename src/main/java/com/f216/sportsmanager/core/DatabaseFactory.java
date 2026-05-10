@@ -7,11 +7,14 @@ import com.f216.sportsmanager.models.*;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class DatabaseFactory {
     private static final String NAMES_FILE = "src/main/resources/names";
-    private static final String SAVE_DIR = "src/main/saves";
-    static final String SAVE_PATH = SAVE_DIR + "/league_data.dat";    private static final Random RANDOM = new Random();
+    private static final String SAVE_DIR = System.getProperty("user.home") + "/SportsManagerSaves";
+    static final String SAVE_PATH = SAVE_DIR + "/league_data.dat";    
+    private static final Random RANDOM = new Random();
+    
     static class Player extends BasePlayer implements Serializable {
         Player(String name, int age, Gender gender, PlayerPosition position) {
             super(name, age, gender, position);
@@ -23,46 +26,48 @@ public class DatabaseFactory {
         }
     }
 
-
     /**
      * Creates a league for the specified sport type.
      */
     public static League generateLeague(String leagueName, ISport sport) {
         if (sport == null) throw new IllegalArgumentException("Sport cannot be null");
-
         League league = new League(leagueName, sport);
-        String teamFilePath = "src/main/resources/teamNames.txt";
         int TEAM_LIMIT = 20;
 
-        try {
-            List<String> allNames = Files.readAllLines(Paths.get(teamFilePath));
+        try (InputStream is = DatabaseFactory.class.getResourceAsStream("/teamNames.txt");
+             BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
+
+            if (is == null) throw new FileNotFoundException("teamNames.txt not found in resources");
+
+            List<String> allNames = reader.lines()
+                    .filter(name -> !name.trim().isEmpty())
+                    .collect(Collectors.toList());
 
             Collections.shuffle(allNames);
 
             for (int i = 0; i < allNames.size() && league.getTeamCount() < TEAM_LIMIT; i++) {
-                String name = allNames.get(i).trim();
-                if (name.isBlank()) continue;
-
-                ITeam team = createTeam(name, sport, Tactic.BALANCED);
+                ITeam team = createTeam(allNames.get(i).trim(), sport, Tactic.BALANCED);
                 league.addTeam(team);
             }
-
-        } catch (IOException e) {
+        } catch (Exception e) {
             System.err.println("Error reading teamNames.txt: " + e.getMessage());
         }
-
         return league;
     }
 
     protected static List<String> loadNames(String gender) {
-        try {
-            List<String> allNames = Files.readAllLines(Paths.get(NAMES_FILE + gender + ".txt"));
-            if (allNames.isEmpty()) return new ArrayList<>(List.of("Generic Player"));
+        try (InputStream is = DatabaseFactory.class.getResourceAsStream("/names" + gender + ".txt");
+             BufferedReader reader = new BufferedReader(new InputStreamReader(is))) {
 
-            List<String> mutableList = new ArrayList<>(allNames);
-            Collections.shuffle(mutableList);
-            return mutableList;
-        } catch (IOException e) {
+            if (is == null) return new ArrayList<>(List.of("Generic Player"));
+
+            List<String> allNames = reader.lines()
+                    .filter(name -> !name.trim().isEmpty())
+                    .collect(Collectors.toList());
+
+            Collections.shuffle(allNames);
+            return allNames;
+        } catch (Exception e) {
             return new ArrayList<>(List.of("Generic Player"));
         }
     }
