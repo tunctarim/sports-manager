@@ -31,9 +31,9 @@ public class Volleyball extends BaseSport {
 
     public Volleyball() {
         // PointsPerWin: 3, PointsPerDraw: 0 (no draws in volleyball)
-        // RosterSize: 14, Segments: 5 (Sets), SegmentLimit: 25 (Points per set)
+        // RosterSize: 14, LineupSize: 6, MaxSubs: -1 (infinite), Segments: 5 (Sets), SegmentLimit: 25 (Points per set)
         // Note: Make sure EndCondition.SCORE_LIMIT exists in your EndCondition enum!
-        super("Volleyball", 3, 0, 14, 5, 25, EndCondition.SCORE_LIMIT, 1000, getRequiredPositionsStatic(), 5.0F);
+        super("Volleyball", 3, 0, 14, 6, -1, 5, 25, EndCondition.SCORE_LIMIT, 1000, getRequiredPositionsStatic(), 5.0F);
     }
 
     private static List<PlayerPosition> getRequiredPositionsStatic() {

@@ -46,11 +46,13 @@ class BaseTeamTest {
     private TestTeam team;
     private TestPlayer playerA;
     private TestPlayer playerB;
+    private TestPlayer playerC;
 
     @BeforeEach
     void setUp() {
         playerA = new TestPlayer("Alice", 25, Gender.FEMALE, TestPosition.FORWARD);
         playerB = new TestPlayer("Bob", 22, Gender.MALE, TestPosition.MIDFIELDER);
+        playerC = new TestPlayer("Charlie", 24, Gender.MALE, TestPosition.FORWARD);
         team = new TestTeam("Test Team", new ArrayList<>(List.of(playerA)), Tactic.ATTACK);
     }
 
@@ -227,6 +229,30 @@ class BaseTeamTest {
         void testExternalAddToReturnedListDoesNotAffectRoster() {
             team.getPlayers().add(playerB);
             assertEquals(1, team.getPlayers().size());
+        }
+
+        @Test
+        void testSubstitutePlayerSuccess() {
+            assertTrue(team.substitutePlayer(playerA, playerB));
+            assertEquals(1, team.getPlayers().size());
+            assertTrue(team.getPlayers().contains(playerB));
+            assertFalse(team.getPlayers().contains(playerA));
+        }
+
+        @Test
+        void testSubstitutePlayerFailsIfOutPlayerNotInTeam() {
+            assertFalse(team.substitutePlayer(playerB, playerC));
+            assertEquals(1, team.getPlayers().size());
+            assertTrue(team.getPlayers().contains(playerA));
+        }
+
+        @Test
+        void testSubstitutePlayerFailsIfInPlayerAlreadyInTeam() {
+            team.addPlayer(playerB);
+            assertFalse(team.substitutePlayer(playerA, playerB));
+            assertEquals(2, team.getPlayers().size());
+            assertTrue(team.getPlayers().contains(playerA));
+            assertTrue(team.getPlayers().contains(playerB));
         }
     }
 

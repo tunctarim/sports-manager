@@ -16,6 +16,12 @@ public interface ISport{
     int getPointsPerDraw();
 
     int getRosterSize();
+    
+    int getLineupSize();
+    // Returns the number of active players on the field/court.
+    
+    int getMaxSubstitutions();
+    // Returns the maximum number of substitutions allowed per game. Returns -1 for infinite.
 
     int getSegmentLimit();
     // Returns the limit of the ticks. (1 segment(half) in a football game is 45 minutes, so it returns 45 or 1 segment(set) in a volleyball game is 25 points so it returns 25).

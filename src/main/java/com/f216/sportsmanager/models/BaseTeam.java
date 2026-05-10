@@ -94,4 +94,23 @@ public abstract class BaseTeam implements ITeam, Serializable {
     public void removePlayer(IPlayer player) {
         players.remove(player);
     }
+
+    @Override
+    public boolean substitutePlayer(IPlayer playerOut, IPlayer playerIn) {
+        if (players.contains(playerOut)) {
+            int outIndex = players.indexOf(playerOut);
+            if (players.contains(playerIn)) {
+                // If playerIn is already in the roster (e.g. on the bench), swap their positions
+                int inIndex = players.indexOf(playerIn);
+                players.set(outIndex, playerIn);
+                players.set(inIndex, playerOut);
+                return true;
+            } else {
+                // If playerIn is external, replace playerOut
+                players.set(outIndex, playerIn);
+                return true;
+            }
+        }
+        return false;
+    }
 }

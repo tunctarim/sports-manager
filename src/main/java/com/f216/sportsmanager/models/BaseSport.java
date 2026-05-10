@@ -13,6 +13,8 @@ public abstract class BaseSport implements ISport, Serializable {
     private final int pointsPerWin;
     private final int pointsPerDraw;
     private final int rosterSize;
+    private final int lineupSize;
+    private final int maxSubstitutions;
     private final int segmentCount;
     private final int segmentLimit;
     private final EndCondition endCondition;
@@ -21,7 +23,7 @@ public abstract class BaseSport implements ISport, Serializable {
     private final float multiplier;
 
 
-    public BaseSport(String name, int ppW, int ppD, int roster, int segments, int limit, EndCondition condition, int tickInterval, List<PlayerPosition> positions, float multiplier) {
+    public BaseSport(String name, int ppW, int ppD, int roster, int lineupSize, int maxSubstitutions, int segments, int limit, EndCondition condition, int tickInterval, List<PlayerPosition> positions, float multiplier) {
         this.multiplier = multiplier;
 
         if (name == null || name.isEmpty()) throw new IllegalArgumentException("Sport name cannot be empty.");
@@ -34,6 +36,8 @@ public abstract class BaseSport implements ISport, Serializable {
         this.pointsPerWin = ppW;
         this.pointsPerDraw = ppD;
         this.rosterSize = roster;
+        this.lineupSize = lineupSize;
+        this.maxSubstitutions = maxSubstitutions;
         this.segmentCount = segments;
         this.segmentLimit = limit;
         this.endCondition = condition;
@@ -64,6 +68,16 @@ public abstract class BaseSport implements ISport, Serializable {
     @Override
     public int getRosterSize() {
         return rosterSize;
+    }
+    
+    @Override
+    public int getLineupSize() {
+        return lineupSize;
+    }
+    
+    @Override
+    public int getMaxSubstitutions() {
+        return maxSubstitutions;
     }
 
     @Override

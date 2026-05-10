@@ -486,6 +486,7 @@ public class SportsManagerApp extends Application {
         Button btnSim  = actionBtn("▶  Simulate Match", "#9a3412");
         Button btnPause = actionBtn("⏸  Pause", "#d97706");
         Button btnTac  = actionBtn("🔄 Change Tactic",   "#7c2d12");
+        Button btnSub  = actionBtn("🔁 Substitute",      "#0284c7");
         Button btnBack = ghostBtn("← Back");
 
         btnPause.setDisable(true);
@@ -507,6 +508,74 @@ public class SportsManagerApp extends Application {
             dlg.setHeaderText("Change tactic mid-match:");
             dlg.setContentText("Tactic:");
             dlg.showAndWait().ifPresent(t -> gc.changeTeamTactic(t));
+        });
+
+        btnSub.setOnAction(e -> {
+            if (myTeam == null) return;
+            List<IPlayer> currentPlayers = myTeam.getPlayers();
+            if (currentPlayers.isEmpty()) return;
+
+            int lineupSize = selectedSport != null ? selectedSport.getLineupSize() : 11;
+            List<IPlayer> activePlayers = currentPlayers.subList(0, Math.min(lineupSize, currentPlayers.size()));
+
+            List<IPlayer> candidates = new ArrayList<>();
+            if (selectedSport != null) {
+                if (currentPlayers.size() > lineupSize) {
+                    candidates = new ArrayList<>(currentPlayers.subList(lineupSize, currentPlayers.size()));
+                } else {
+                    candidates = com.f216.sportsmanager.core.DatabaseFactory.generateRoster(selectedSport).subList(0, Math.min(5, selectedSport.getRosterSize()));
+                }
+            }
+
+            Dialog<ButtonType> dialog = new Dialog<>();
+            dialog.setTitle("Substitute Player");
+            dialog.setHeaderText("Select players to swap:");
+
+            ComboBox<String> outCombo = new ComboBox<>();
+            for (IPlayer p : activePlayers) {
+                outCombo.getItems().add(p.getName() + " (OVR:" + p.getOverallRating() + ")");
+            }
+            if (!activePlayers.isEmpty()) outCombo.getSelectionModel().select(0);
+
+            ComboBox<String> inCombo = new ComboBox<>();
+            for (IPlayer p : candidates) {
+                inCombo.getItems().add(p.getName() + " (OVR:" + p.getOverallRating() + ")");
+            }
+            if (!candidates.isEmpty()) inCombo.getSelectionModel().select(0);
+
+            VBox dialogVbox = new VBox(10, new Label("Player to substitute OUT:"), outCombo, new Label("Player to substitute IN:"), inCombo);
+            dialogVbox.setPadding(new Insets(10));
+            dialog.getDialogPane().setContent(dialogVbox);
+            dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+            final List<IPlayer> finalCandidates = candidates;
+            
+            dialog.showAndWait().ifPresent(result -> {
+                if (result == ButtonType.OK) {
+                    int outIdx = outCombo.getSelectionModel().getSelectedIndex();
+                    int inIdx = inCombo.getSelectionModel().getSelectedIndex();
+                    if (outIdx >= 0 && inIdx >= 0 && outIdx < activePlayers.size() && inIdx < finalCandidates.size()) {
+                        IPlayer pOut = activePlayers.get(outIdx);
+                        IPlayer pIn = finalCandidates.get(inIdx);
+                        
+                        boolean isLive = btnSim.isDisabled() && !btnPause.isDisabled();
+                        if (isLive) {
+                            boolean isHome = leagueManager.getMatchEngine().getHomeTeam() != null && leagueManager.getMatchEngine().getHomeTeam().getTeamName().equals(myTeam.getTeamName());
+                            boolean success = leagueManager.getMatchEngine().performSubstitution(isHome, pOut, pIn);
+                            if (!success) {
+                                Platform.runLater(() -> alert("Substitution Failed", "Substitution limit reached."));
+                                return;
+                            }
+                        } else {
+                            myTeam.substitutePlayer(pOut, pIn);
+                        }
+                        
+                        Platform.runLater(() -> {
+                            lineups.getChildren().set(0, lineupPanel(myTeam, "🏠"));
+                        });
+                    }
+                }
+            });
         });
 
         btnBack.setOnAction(e -> showTeamManagement());
@@ -615,7 +684,7 @@ public class SportsManagerApp extends Application {
             });
         });
 
-        root.getChildren().addAll(scoreboard, timeBox, centerContent, hbox(15, btnSim, btnPause, btnTac, btnBack));
+        root.getChildren().addAll(scoreboard, timeBox, centerContent, hbox(15, btnSim, btnPause, btnTac, btnSub, btnBack));
 
         setScene(scrollPane(root, "#431407"));
     }
@@ -735,7 +804,8 @@ public class SportsManagerApp extends Application {
 
         if (team != null) {
             List<IPlayer> players = team.getPlayers();
-            for (int i = 0; i < Math.min(players.size(), 11); i++) {
+            int lineupSize = selectedSport != null ? selectedSport.getLineupSize() : 11;
+            for (int i = 0; i < Math.min(players.size(), lineupSize); i++) {
                 IPlayer p = players.get(i);
                 String pos = p.getPosition() != null ? p.getPosition().getCode() : "?";
                 String injured = p.isInjured() ? " 🚑" : "";

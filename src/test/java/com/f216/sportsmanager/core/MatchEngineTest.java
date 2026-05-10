@@ -6,6 +6,7 @@ import com.f216.sportsmanager.interfaces.IPlayer;
 import com.f216.sportsmanager.interfaces.ISport;
 import com.f216.sportsmanager.interfaces.ITeam;
 import com.f216.sportsmanager.models.Fixture;
+import com.f216.sportsmanager.models.MatchEvent;
 import com.f216.sportsmanager.models.MatchResult;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.parallel.Execution;
@@ -109,6 +110,7 @@ class MatchEngineTest {
             IPlayer player = mock(IPlayer.class, withSettings().stubOnly());
             int rating = ThreadLocalRandom.current().nextInt(minRating, maxRating + 1);
             when(player.getOverallRating()).thenReturn(rating);
+            when(player.getName()).thenReturn("Player " + i);
             team.add(player);
         }
         return team;
@@ -307,6 +309,33 @@ class MatchEngineTest {
 
             MatchEngine engine = new MatchEngine();
             assertDoesNotThrow(() -> engine.simulateMatch(fixture, sport, 1, false));
+        }
+        
+        @Test
+        @DisplayName("substitution creates match event")
+        void substitutionEvent() {
+            ISport  sport   = buildSportMock();
+            ITeam   home    = buildTeamMock(generateRandomTeam(11, 75, 75), Tactic.BALANCED);
+            ITeam   away    = buildTeamMock(generateRandomTeam(11, 75, 75), Tactic.BALANCED);
+            Fixture fixture = new Fixture(home, away);
+
+            IPlayer pOut = mock(IPlayer.class, withSettings().stubOnly());
+            IPlayer pIn = mock(IPlayer.class, withSettings().stubOnly());
+            when(home.substitutePlayer(pOut, pIn)).thenReturn(true);
+            when(home.getTeamName()).thenReturn("HomeTeam");
+            when(pOut.getName()).thenReturn("Out");
+            when(pIn.getName()).thenReturn("In");
+
+            MatchEngine engine = new MatchEngine();
+            // initialize properties by starting a background thread for a long match
+            // However, we just need to ensure performSubstitution does not crash when not actively simulating
+            // We can just call it (tick will be 0)
+            engine.simulateMatch(fixture, sport, 1, false);
+            engine.performSubstitution(true, pOut, pIn);
+
+            List<MatchEvent> events = engine.getMatchEvents();
+            long subEvents = events.stream().filter(e -> e.getType() == MatchEvent.EventType.SUBSTITUTION).count();
+            assertEquals(1, subEvents);
         }
     }
 

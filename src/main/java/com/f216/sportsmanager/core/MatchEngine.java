@@ -31,6 +31,9 @@ public class MatchEngine {
     private int segmentLimit;
     private int week;
     private int currentSegment;
+    
+    private int homeSubstitutions;
+    private int awaySubstitutions;
 
     private float HomeAttackScore;
     private float HomeDefenseScore;
@@ -68,6 +71,8 @@ public class MatchEngine {
         awayScore = 0;
         homeSegmentsWon = 0;
         awaySegmentsWon = 0;
+        homeSubstitutions = 0;
+        awaySubstitutions = 0;
         tick = 0;
         tickInterval = s.getTickInterval();
         segmentCount = s.getSegmentCount();
@@ -273,14 +278,18 @@ public class MatchEngine {
         List<IPlayer> awayPlayers = awayTeam.getPlayers();
         HomeCapability = 0;
         AwayCapability = 0;
-        for (IPlayer p : homePlayers) {
-            HomeCapability += p.getOverallRating();
+        
+        int hLineupSize = sport != null ? Math.min(sport.getLineupSize(), homePlayers.size()) : Math.min(11, homePlayers.size());
+        for (int i = 0; i < hLineupSize; i++) {
+            HomeCapability += homePlayers.get(i).getOverallRating();
         }
-        HomeCapability = HomeCapability / homePlayers.size();
-        for (IPlayer p : awayPlayers) {
-            AwayCapability += p.getOverallRating();
+        HomeCapability = HomeCapability / hLineupSize;
+        
+        int aLineupSize = sport != null ? Math.min(sport.getLineupSize(), awayPlayers.size()) : Math.min(11, awayPlayers.size());
+        for (int i = 0; i < aLineupSize; i++) {
+            AwayCapability += awayPlayers.get(i).getOverallRating();
         }
-        AwayCapability = AwayCapability / awayPlayers.size();
+        AwayCapability = AwayCapability / aLineupSize;
 
         HomeScoreProbability = FixedMultiplier * HomeAttackScore * AwayDefenseScore * HomeCapability * homeAdvantageMultiplier;
         AwayScoreProbability = FixedMultiplier *  AwayAttackScore * HomeDefenseScore * AwayCapability;
@@ -310,6 +319,33 @@ public class MatchEngine {
             return new MatchResult(homeTeam, awayTeam, homeSegmentsWon, awaySegmentsWon, week);
         }
         return new MatchResult(homeTeam, awayTeam, homeScore, awayScore, week);
+    }
+    
+    public ITeam getHomeTeam() {
+        return homeTeam;
+    }
+    
+    public boolean performSubstitution(boolean isHomeTeam, IPlayer playerOut, IPlayer playerIn) {
+        int maxSubs = sport.getMaxSubstitutions();
+        int currentSubs = isHomeTeam ? homeSubstitutions : awaySubstitutions;
+        
+        if (maxSubs != -1 && currentSubs >= maxSubs) {
+            return false;
+        }
+
+        ITeam team = isHomeTeam ? homeTeam : awayTeam;
+        if (team.substitutePlayer(playerOut, playerIn)) {
+            if (isHomeTeam) homeSubstitutions++; else awaySubstitutions++;
+            
+            MatchEvent event = new MatchEvent(
+                    MatchEvent.EventType.SUBSTITUTION, tick, homeScore, awayScore,
+                    "🔄 Substitution for " + team.getTeamName() + ": " + playerOut.getName() + " OUT, " + playerIn.getName() + " IN. (Minute " + getCurrentMinute() + ")"
+            );
+            matchEvents.add(event);
+            notifyObservers(event);
+            return true;
+        }
+        return false;
     }
 
     // --- LIVE MODE SUPPORT METHODS ---

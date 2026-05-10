@@ -19,5 +19,6 @@ public interface ITeam {
 
     void addPlayer(IPlayer player);
     void removePlayer(IPlayer player);
+    boolean substitutePlayer(IPlayer playerOut, IPlayer playerIn);
 
 }
