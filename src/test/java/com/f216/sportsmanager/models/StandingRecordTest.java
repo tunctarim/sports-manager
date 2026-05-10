@@ -63,6 +63,11 @@ class StandingRecordTest {
             @Override
             public void removePlayer(IPlayer p) {
             }
+
+            @Override
+            public boolean substitutePlayer(IPlayer playerOut, IPlayer playerIn) {
+                return false;
+            }
         };
     }
     private static ITeam nullStatsTeam() {
@@ -106,6 +111,11 @@ class StandingRecordTest {
 
             @Override
             public void removePlayer(IPlayer p) {
+            }
+
+            @Override
+            public boolean substitutePlayer(IPlayer playerOut, IPlayer playerIn) {
+                return false;
             }
         };
     }
@@ -262,6 +272,11 @@ class StandingRecordTest {
 
                 @Override
                 public void removePlayer(IPlayer p) {
+                }
+
+                @Override
+                public boolean substitutePlayer(IPlayer playerOut, IPlayer playerIn) {
+                    return false;
                 }
             };
             StandingRecord sr = new StandingRecord(blank);
