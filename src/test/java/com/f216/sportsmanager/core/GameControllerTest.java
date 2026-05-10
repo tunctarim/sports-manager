@@ -9,8 +9,8 @@ import com.f216.sportsmanager.interfaces.ISport;
 import com.f216.sportsmanager.models.League;
 import com.f216.sportsmanager.enums.Tactic;
 import com.f216.sportsmanager.interfaces.ITeam;
-import java.util.HashMap;
-import java.util.Map;
+import com.f216.sportsmanager.models.DashboardData;
+import java.util.List;
 
 public class GameControllerTest {
 
@@ -51,13 +51,13 @@ public class GameControllerTest {
 
     @Test
     public void testGetDashboardData() {
-        Map<String, Object> expectedData = new HashMap<>();
-        expectedData.put("week", 1);
-        expectedData.put("getTeamName", "Test FC");
+        DashboardData expectedData = new DashboardData(
+            "Test League", 1, 10, false, List.of(), List.of(), null, List.of(), null
+        );
 
         Mockito.when(mockLeagueManager.getDashboardData()).thenReturn(expectedData);
 
-        Map<String, Object> actualData = gameController.getDashboardData();
+        DashboardData actualData = gameController.getDashboardData();
 
         assertNotNull(actualData);
         assertEquals(expectedData, actualData);

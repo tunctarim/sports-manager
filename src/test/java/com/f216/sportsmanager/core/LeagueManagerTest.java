@@ -4,6 +4,7 @@ import com.f216.sportsmanager.enums.Tactic;
 import com.f216.sportsmanager.interfaces.IPlayer;
 import com.f216.sportsmanager.interfaces.ISport;
 import com.f216.sportsmanager.interfaces.ITeam;
+import com.f216.sportsmanager.models.DashboardData;
 import com.f216.sportsmanager.models.Fixture;
 import com.f216.sportsmanager.models.League;
 import com.f216.sportsmanager.models.MatchResult;
@@ -443,33 +444,26 @@ class LeagueManagerTest {
         void testExpectedKeys() {
             manager.setLeagueData(makeLeague(4));
             manager.generateSchedule();
-            Map<String, Object> data = manager.getDashboardData();
-            assertTrue(data.containsKey("currentWeek"));
-            assertTrue(data.containsKey("totalWeeks"));
-            assertTrue(data.containsKey("seasonEnded"));
-            assertTrue(data.containsKey("standings"));
-            assertTrue(data.containsKey("recentResults"));
-            assertTrue(data.containsKey("nextFixtures"));
+            DashboardData data = manager.getDashboardData();
+            
+            assertNotNull(data.getLeagueName());
+            assertEquals(0, data.getCurrentWeek());
+            assertEquals(3, data.getTotalWeeks());
+            assertFalse(data.isSeasonEnded());
+            assertNotNull(data.getStandings());
+            assertNotNull(data.getWeeklySchedule());
+            assertNotNull(data.getRecentResults());
         }
 
         @Test
-        @DisplayName("champion key only present after season ends")
-        void testChampionKeyOnlyAfterEnd() {
+        @DisplayName("champion only present after season ends")
+        void testChampionOnlyAfterEnd() {
             manager.setLeagueData(makeLeague(4));
             manager.generateSchedule();
-            assertFalse(manager.getDashboardData().containsKey("champion"));
+            assertNull(manager.getDashboardData().getChampion());
 
             for (int i = 0; i < manager.getTotalWeeks(); i++) manager.playMatchDay();
-            assertTrue(manager.getDashboardData().containsKey("champion"));
-        }
-
-        @Test
-        @DisplayName("returned map is unmodifiable")
-        void testUnmodifiable() {
-            manager.setLeagueData(makeLeague(4));
-            manager.generateSchedule();
-            assertThrows(UnsupportedOperationException.class,
-                    () -> manager.getDashboardData().put("hack", "value"));
+            assertNotNull(manager.getDashboardData().getChampion());
         }
     }
 
