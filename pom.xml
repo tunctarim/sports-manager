@@ -91,10 +91,9 @@
         <version>0.0.8</version>
         <executions>
           <execution>
-            <!-- Default configuration for running with: mvn clean javafx:run -->
             <id>default-cli</id>
             <configuration>
-              <mainClass>com.f216.sportsmanager.ui.MainFX</mainClass>
+              <mainClass>com.f216.sportsmanager.ui.SportsManagerApp</mainClass>
               <launcher>app</launcher>
               <jlinkZipName>app</jlinkZipName>
               <jlinkImageName>app</jlinkImageName>
@@ -112,9 +111,10 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>exec-maven-plugin</artifactId>
-        <version>3.6.3</version> <configuration>
-        <mainClass>com.f216.sportsmanager.ui.MainFX</mainClass>
-      </configuration>
+        <version>3.6.3</version>
+        <configuration>
+          <mainClass>com.f216.sportsmanager.ui.SportsManagerApp</mainClass>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
