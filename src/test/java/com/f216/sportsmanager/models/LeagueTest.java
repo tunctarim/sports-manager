@@ -13,7 +13,6 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 class LeagueTest {
 
     private static final ISport FOOTBALL_SPORT = new ISport() {
@@ -52,6 +51,16 @@ class LeagueTest {
         @Override
         public int getRosterSize() {
             return 11;
+        }
+
+        @Override
+        public int getLineupSize() {
+            return 11;
+        }
+
+        @Override
+        public int getMaxSubstitutions() {
+            return 3;
         }
 
         @Override
@@ -126,6 +135,16 @@ class LeagueTest {
             @Override
             public int getRosterSize() {
                 return 5;
+            }
+
+            @Override
+            public int getLineupSize() {
+                return 5;
+            }
+
+            @Override
+            public int getMaxSubstitutions() {
+                return 0;
             }
 
             @Override
@@ -205,6 +224,11 @@ class LeagueTest {
 
             @Override
             public void removePlayer(IPlayer player) {
+            }
+
+            @Override
+            public boolean substitutePlayer(IPlayer playerOut, IPlayer playerIn) {
+                return false;
             }
 
             @Override
@@ -437,7 +461,6 @@ class LeagueTest {
         void testGetTeamsReflectsSubsequentAdds() {
             List<ITeam> before = league.getTeams();
             league.addTeam(teamA);
-            // The view is a live unmodifiable wrapper, so size should update
             assertEquals(1, before.size());
         }
     }
@@ -605,6 +628,11 @@ class LeagueTest {
                 @Override
                 public void removePlayer(IPlayer p) {
                 }
+
+                @Override
+                public boolean substitutePlayer(IPlayer playerOut, IPlayer playerIn) {
+                    return false;
+                }
             };
         }
 
@@ -640,18 +668,18 @@ class LeagueTest {
         void testStandingsSortedByPointsDesc() {
             ITeam high = teamWithStats(9, 3, 0, 90, 30);
             ITeam low = teamWithStats(3, 1, 2, 50, 70);
-            league.addTeam(low); // added in reverse order
+            league.addTeam(low);
             league.addTeam(high);
             List<StandingRecord> s = league.getStandings();
-            assertEquals(9, s.get(0).getPoints()); // high points first
+            assertEquals(9, s.get(0).getPoints());
             assertEquals(3, s.get(1).getPoints());
         }
 
         @Test
         @DisplayName("equal points: sorted by goal difference descending")
         void testStandingsSortedByGoalDifferenceOnTie() {
-            ITeam better = teamWithStats(6, 2, 1, 80, 40); // gd = +40
-            ITeam worse = teamWithStats(6, 2, 1, 60, 50); // gd = +10
+            ITeam better = teamWithStats(6, 2, 1, 80, 40);
+            ITeam worse = teamWithStats(6, 2, 1, 60, 50);
             league.addTeam(worse);
             league.addTeam(better);
             List<StandingRecord> s = league.getStandings();

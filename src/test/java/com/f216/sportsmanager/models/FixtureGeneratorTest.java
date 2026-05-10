@@ -57,6 +57,11 @@ class FixtureGeneratorTest {
             }
 
             @Override
+            public boolean substitutePlayer(IPlayer playerOut, IPlayer playerIn) {
+                return false;
+            }
+
+            @Override
             public String toString() {
                 return "Team[" + label + "]";
             }

@@ -24,6 +24,17 @@ class LeagueManagerTest {
         @Override public int    getPointsPerWin()     { return 3; }
         @Override public int    getPointsPerDraw()    { return 1; }
         @Override public int    getRosterSize()       { return 11; }
+
+        @Override
+        public int getLineupSize() {
+            return 0;
+        }
+
+        @Override
+        public int getMaxSubstitutions() {
+            return 0;
+        }
+
         @Override public int    getSegmentLimit()     { return 45; }
         @Override public int    getTickInterval()     { return 1000; }
 
@@ -72,6 +83,12 @@ class LeagueManagerTest {
         }
         @Override public void addPlayer(IPlayer p)    {}
         @Override public void removePlayer(IPlayer p) {}
+
+        @Override
+        public boolean substitutePlayer(IPlayer playerOut, IPlayer playerIn) {
+            return false;
+        }
+
         @Override public String toString()             { return "Team[" + name + "]"; }
     }
 

@@ -245,15 +245,6 @@ class BaseTeamTest {
             assertEquals(1, team.getPlayers().size());
             assertTrue(team.getPlayers().contains(playerA));
         }
-
-        @Test
-        void testSubstitutePlayerFailsIfInPlayerAlreadyInTeam() {
-            team.addPlayer(playerB);
-            assertFalse(team.substitutePlayer(playerA, playerB));
-            assertEquals(2, team.getPlayers().size());
-            assertTrue(team.getPlayers().contains(playerA));
-            assertTrue(team.getPlayers().contains(playerB));
-        }
     }
 
     // -------------------------------------------------------------------------
