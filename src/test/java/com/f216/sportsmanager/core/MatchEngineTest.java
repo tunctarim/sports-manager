@@ -49,6 +49,7 @@ class MatchEngineTest {
         when(sport.getSegmentLimit()).thenReturn(45);
         when(sport.getTotalMatchLength()).thenReturn(90);
         when(sport.getEndCondition()).thenReturn(EndCondition.TIME_LIMIT);
+        when(sport.getFixedMultiplier()).thenReturn(1.0F);
         return sport;
     }
 
